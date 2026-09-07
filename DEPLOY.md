@@ -5,23 +5,34 @@ everything in one pass:
 
 | Service | Type | Role |
 |---|---|---|
-| `portfolio-crm-web` | Web Service (Docker) | Public site + `/admin` CMS. Runs migrations on boot. |
-| `portfolio-crm-worker` | Worker (Docker) | `php artisan queue:work` — no public URL. |
+| `portfolio-crm-web` | Web Service (Docker) | Public site + `/admin` CMS. Runs migrations on boot, **and** runs `php artisan queue:work` in-process (see note below). |
 | `portfolio-crm-reverb` | Web Service (Docker) | Laravel Reverb websocket server — needs to be public. |
 | `portfolio-crm-db` | Postgres | Render has no managed MySQL, so the app runs on Postgres here (local XAMPP dev keeps using MySQL — see `config/database.php`, both connections are defined). |
 | `portfolio-crm-redis` | Key Value | Redis-compatible — session/cache/queue driver. |
 
-All three app services build from the same root `Dockerfile`; which process
-each one runs is picked by the `APP_ROLE` env var (`web` / `worker` /
-`reverb`) — see `docker/entrypoint.sh`.
+Both app services build from the same root `Dockerfile`; which process each
+one runs is picked by the `APP_ROLE` env var (`web` / `worker` / `reverb`) —
+see `docker/entrypoint.sh`.
+
+**No separate worker service:** Render's free plan doesn't offer the
+"Background Worker" service type — a Blueprint sync that tries to create one
+fails with `service type is not available for this plan`. So `portfolio-crm-web`
+runs `php artisan queue:work` as a background process inside the same
+container as `php artisan serve` (wrapped in a restart loop, since there's no
+process supervisor in the image — see `docker/entrypoint.sh`). This is a
+reasonable tradeoff for a low-traffic portfolio/CRM; if job volume grows or
+you upgrade to a paid plan, `render.yaml` has the exact `worker` service
+block commented in at the top ready to uncomment (the `APP_ROLE=worker`
+branch in `entrypoint.sh` already supports it, unchanged).
 
 ## One-time setup
 
 1. Push this repo to GitHub (see the main deploy message for exact steps).
 2. In the Render dashboard: **New +** → **Blueprint** → connect this GitHub
-   repo → Render reads `render.yaml` and shows a preview of all 5 resources
-   it's about to create → **Apply**.
-3. Wait for all three Docker builds to finish (the web service's build also
+   repo → Render reads `render.yaml` and shows a preview of all resources
+   it's about to create (env group, Postgres, Key Value, and the two app
+   services) → **Apply**.
+3. Wait for both Docker builds to finish (the web service's build also
    runs the Vite frontend build — first build is the slowest, ~5-10 min).
 4. Open `portfolio-crm-web`'s URL and confirm the site loads, then log in at
    `/login` with the Super Admin account from `AdminUserSeeder` and change
@@ -71,8 +82,11 @@ not the permanent home for real uploads.
 Render deletes free Postgres and free Key Value instances **30 days** after
 creation unless upgraded to a paid plan before then. Set yourself a
 reminder — losing the database silently is the failure mode to avoid. The
-web/worker/reverb free services don't expire, they just spin down after 15
-minutes of inactivity (cold start of ~30-60s on the next request).
+web/reverb free services don't expire, they just spin down after 15
+minutes of inactivity (cold start of ~30-60s on the next request). Note that
+a spin-down also stops the in-process queue worker running inside
+`portfolio-crm-web` — queued jobs simply wait until the next request wakes
+the service back up.
 
 ## Redeploying after future CMS batches
 
