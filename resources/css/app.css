@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens (spec #42). Every color used across components reads from
+ * one of these CSS variables - never a hard-coded hex value - so a future
+ * "theme configuration from admin" only ever has to rewrite this block.
+ */
+:root {
+    /*
+     * "Aurora" palette (v3) - keeps the deep navy-violet base (replacing
+     * flat black) and the violet/cyan pairing from v2, but drops the hot
+     * fuchsia secondary per direct feedback that pink read wrong for this
+     * site. Secondary is back to a vivid electric blue instead - still a
+     * distinct hue from primary/accent for gradients, just not pink.
+     */
+    --background: 10 9 18;         /* #0a0912 - deep navy-violet-black */
+    --surface: 21 18 40;           /* #151228 - violet-tinted charcoal */
+    --surface-elevated: 30 26 56;  /* #1e1a38 */
+    --primary: 139 92 246;         /* #8b5cf6 - electric violet */
+    --secondary: 59 130 246;       /* #3b82f6 - electric blue */
+    --accent: 34 211 238;          /* #22d3ee - cyan */
+    --text: 248 247 252;           /* #f8f7fc - soft white */
+    --muted: 163 161 194;          /* #a3a1c2 - violet-tinted grey */
+    --border: 255 255 255;
+    --border-opacity: 0.1;
+}
+
+@theme {
+    --color-background: rgb(var(--background));
+    --color-surface: rgb(var(--surface));
+    --color-surface-elevated: rgb(var(--surface-elevated));
+    --color-primary: rgb(var(--primary));
+    --color-secondary: rgb(var(--secondary));
+    --color-accent: rgb(var(--accent));
+    --color-text: rgb(var(--text));
+    --color-muted: rgb(var(--muted));
+
+    --font-sans: 'Inter var', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    * {
+        border-color: rgb(var(--border) / var(--border-opacity));
+    }
+
+    html {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply text-text antialiased;
+        background-color: rgb(var(--background));
+        /* Soft, fixed-position glow fields in the three palette colors -
+         * cheap CSS-only depth so the page never reads as flat black,
+         * even where the 3D canvas and content don't cover it. */
+        background-image:
+            radial-gradient(ellipse 70% 45% at 15% -10%, rgb(var(--primary) / 0.28), transparent 60%),
+            radial-gradient(ellipse 60% 40% at 100% 15%, rgb(var(--secondary) / 0.18), transparent 60%),
+            radial-gradient(ellipse 55% 45% at 90% 90%, rgb(var(--accent) / 0.14), transparent 60%),
+            radial-gradient(ellipse 50% 35% at 0% 100%, rgb(var(--primary) / 0.12), transparent 60%);
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+    }
+
+    ::selection {
+        @apply bg-primary/30 text-text;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+@layer components {
+    .glass-panel {
+        @apply bg-surface/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl transition-[box-shadow,border-color] duration-300;
+    }
+
+    .glass-panel:hover {
+        border-color: rgb(var(--primary) / 0.3);
+        box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12);
+    }
+
+    /* Reusable "aurora" text gradient - violet -> blue -> cyan - for
+     * headings/eyebrows that want the palette's signature look instead of
+     * a flat solid color. */
+    .text-aurora {
+        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--secondary)), rgb(var(--accent)));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white
+        transition-[filter,box-shadow] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2
+        focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none;
+        background-image: linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary)));
+        box-shadow: 0 12px 30px -10px rgb(var(--primary) / 0.55);
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm
+        font-medium text-text transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2
+        focus-visible:outline-offset-2 focus-visible:outline-accent;
+    }
+}
