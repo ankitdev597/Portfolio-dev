@@ -1,0 +1,151 @@
+# Render Blueprint - deploys the full stack in one pass:
+#   portfolio-crm-web     web service   (public site + /admin CMS, runs migrations on boot)
+#   portfolio-crm-worker  worker        (queue:work - private, no public URL)
+#   portfolio-crm-reverb  web service   (Laravel Reverb websocket server - needs to be public)
+#   portfolio-crm-db      Postgres      (managed - Render has no managed MySQL)
+#   portfolio-crm-redis   Key Value     (Redis-compatible - session/cache/queue driver)
+#
+# All three app services build from the same Dockerfile and pick their role
+# via APP_ROLE (see docker/entrypoint.sh). Deploy via the Render dashboard:
+# New + -> Blueprint -> connect this repo -> Apply.
+#
+# Everything below is on the FREE plan per your choice: the web/reverb
+# services spin down after 15 min idle (cold start on the next request),
+# and the Postgres/Key Value instances are deleted 30 days after creation
+# unless upgraded to a paid plan before then - see the deploy notes doc for
+# the reminder to set a calendar note for that.
+
+databases:
+  - name: portfolio-crm-db
+    plan: free
+    databaseName: portfolio_crm
+    user: portfolio_crm
+
+services:
+  - type: keyvalue
+    name: portfolio-crm-redis
+    plan: free
+    maxmemoryPolicy: allkeys_lru
+
+  - type: web
+    name: portfolio-crm-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ROLE
+        value: web
+      - key: APP_URL
+        value: https://portfolio-crm-web.onrender.com
+      - key: DB_URL
+        fromDatabase:
+          name: portfolio-crm-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: portfolio-crm-redis
+          property: connectionString
+      - fromGroup: portfolio-crm-shared
+
+  - type: worker
+    name: portfolio-crm-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: APP_ROLE
+        value: worker
+      - key: APP_URL
+        value: https://portfolio-crm-web.onrender.com
+      - key: DB_URL
+        fromDatabase:
+          name: portfolio-crm-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: portfolio-crm-redis
+          property: connectionString
+      - fromGroup: portfolio-crm-shared
+
+  - type: web
+    name: portfolio-crm-reverb
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: APP_ROLE
+        value: reverb
+      - key: APP_URL
+        value: https://portfolio-crm-web.onrender.com
+      - key: DB_URL
+        fromDatabase:
+          name: portfolio-crm-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: portfolio-crm-redis
+          property: connectionString
+      - fromGroup: portfolio-crm-shared
+
+envVarGroups:
+  - name: portfolio-crm-shared
+    envVars:
+      # Shared across all three app services so encrypted cookies/sessions
+      # and Reverb's broadcast-auth signatures agree - do NOT let these
+      # drift between services (e.g. by overriding one in the dashboard).
+      - key: APP_KEY
+        generateValue: true
+      - key: REVERB_APP_ID
+        value: portfolio-crm
+      - key: REVERB_APP_KEY
+        value: portfolio-crm-key
+      - key: REVERB_APP_SECRET
+        generateValue: true
+
+      - key: APP_NAME
+        value: "Ankit Vishwakarma - Portfolio"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_CHANNEL
+        value: stderr
+
+      - key: DB_CONNECTION
+        value: pgsql
+
+      - key: SESSION_DRIVER
+        value: redis
+      - key: CACHE_STORE
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: BROADCAST_CONNECTION
+        value: reverb
+
+      # Reverb's own server binds to $PORT via docker/entrypoint.sh; this is
+      # what the OTHER services (web signing broadcast auth) use to know
+      # where the Reverb server publicly lives.
+      - key: REVERB_HOST
+        value: portfolio-crm-reverb.onrender.com
+      - key: REVERB_PORT
+        value: "443"
+      - key: REVERB_SCHEME
+        value: https
+
+      # Local disk by default (matches the free-tier choice for now).
+      # Render's free web service has NO persistent disk, so uploaded
+      # avatars/resumes/thumbnails/badges are LOST on every redeploy or
+      # restart until this is switched to S3-compatible storage - see the
+      # deploy notes doc for how to wire up Cloudflare R2's free tier
+      # (just add AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_BUCKET /
+      # AWS_ENDPOINT / AWS_DEFAULT_REGION and flip this to "s3" - no code
+      # changes needed, config/filesystems.php already reads these).
+      - key: PUBLIC_DISK_DRIVER
+        value: local
