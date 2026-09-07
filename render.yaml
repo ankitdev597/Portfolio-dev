@@ -25,7 +25,10 @@ services:
   - type: keyvalue
     name: portfolio-crm-redis
     plan: free
-    maxmemoryPolicy: allkeys_lru
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: allow all (the app services reach this over Render's internal network regardless; a connection still requires the generated auth credentials)
 
   - type: web
     name: portfolio-crm-web
