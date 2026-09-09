@@ -55,7 +55,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
         profile_image: null,
     });
 
-    const { data, setData, patch, processing, errors } = useForm<SettingsForm>({
+    const { data, setData, patch, processing, errors, clearErrors } = useForm<SettingsForm>({
         site_name: (settings.site_name as string) ?? '',
         site_title: (settings.site_title as string) ?? '',
         headline: (settings.headline as string) ?? '',
@@ -77,6 +77,22 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
         profile_image: null,
         remove_profile_image: false,
     });
+
+    /**
+     * setData() alone leaves a field's red error message on screen even
+     * after the user fixes the value - Inertia only clears `errors` on the
+     * next submit, not on input. That reads as "this looks filled in but
+     * it's still complaining" (exactly the confusing state a required-field
+     * error can get stuck in), so every text/checkbox field below calls
+     * this instead of setData directly.
+     */
+    function updateField(field: Extract<keyof SettingsForm, string>, value: string | boolean) {
+        setData(field, value as never);
+
+        if (errors[field]) {
+            clearErrors(field);
+        }
+    }
 
     const onFileChange = (
         field: 'favicon' | 'logo' | 'profile_image',
@@ -146,12 +162,12 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="site_name" value="Site name" />
-                            <TextInput id="site_name" value={data.site_name} onChange={(e) => setData('site_name', e.target.value)} />
+                            <TextInput id="site_name" value={data.site_name} onChange={(e) => updateField('site_name', e.target.value)} />
                             <InputError message={errors.site_name} />
                         </div>
                         <div>
                             <InputLabel htmlFor="headline" value="Headline" />
-                            <TextInput id="headline" value={data.headline} onChange={(e) => setData('headline', e.target.value)} />
+                            <TextInput id="headline" value={data.headline} onChange={(e) => updateField('headline', e.target.value)} />
                             <InputError message={errors.headline} />
                         </div>
                     </div>
@@ -159,7 +175,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <label className="mt-5 flex items-center gap-2 text-sm text-text">
                         <Checkbox
                             checked={data.maintenance_mode}
-                            onChange={(e) => setData('maintenance_mode', e.target.checked)}
+                            onChange={(e) => updateField('maintenance_mode', e.target.checked)}
                         />
                         Maintenance mode
                     </label>
@@ -171,17 +187,17 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="email" value="Email" />
-                            <TextInput id="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                            <TextInput id="email" value={data.email} onChange={(e) => updateField('email', e.target.value)} />
                             <InputError message={errors.email} />
                         </div>
                         <div>
                             <InputLabel htmlFor="phone" value="Phone (optional)" />
-                            <TextInput id="phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
+                            <TextInput id="phone" value={data.phone} onChange={(e) => updateField('phone', e.target.value)} />
                             <InputError message={errors.phone} />
                         </div>
                         <div>
                             <InputLabel htmlFor="location" value="Location (optional)" />
-                            <TextInput id="location" value={data.location} onChange={(e) => setData('location', e.target.value)} />
+                            <TextInput id="location" value={data.location} onChange={(e) => updateField('location', e.target.value)} />
                             <InputError message={errors.location} />
                         </div>
                         <div>
@@ -190,7 +206,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                                 id="whatsapp_number"
                                 placeholder="918112656226"
                                 value={data.whatsapp_number}
-                                onChange={(e) => setData('whatsapp_number', e.target.value)}
+                                onChange={(e) => updateField('whatsapp_number', e.target.value)}
                             />
                             <InputError message={errors.whatsapp_number} />
                         </div>
@@ -200,7 +216,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                                 id="whatsapp_default_message"
                                 rows={2}
                                 value={data.whatsapp_default_message}
-                                onChange={(e) => setData('whatsapp_default_message', e.target.value)}
+                                onChange={(e) => updateField('whatsapp_default_message', e.target.value)}
                             />
                             <InputError message={errors.whatsapp_default_message} />
                         </div>
@@ -213,7 +229,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="github_url" value="GitHub URL" />
-                            <TextInput id="github_url" value={data.github_url} onChange={(e) => setData('github_url', e.target.value)} />
+                            <TextInput id="github_url" value={data.github_url} onChange={(e) => updateField('github_url', e.target.value)} />
                             <InputError message={errors.github_url} />
                         </div>
                         <div>
@@ -221,7 +237,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                             <TextInput
                                 id="linkedin_url"
                                 value={data.linkedin_url}
-                                onChange={(e) => setData('linkedin_url', e.target.value)}
+                                onChange={(e) => updateField('linkedin_url', e.target.value)}
                             />
                             <InputError message={errors.linkedin_url} />
                         </div>
@@ -234,12 +250,12 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="site_title" value="Browser tab title" />
-                            <TextInput id="site_title" value={data.site_title} onChange={(e) => setData('site_title', e.target.value)} />
+                            <TextInput id="site_title" value={data.site_title} onChange={(e) => updateField('site_title', e.target.value)} />
                             <InputError message={errors.site_title} />
                         </div>
                         <div>
                             <InputLabel htmlFor="meta_title" value="Meta title" />
-                            <TextInput id="meta_title" value={data.meta_title} onChange={(e) => setData('meta_title', e.target.value)} />
+                            <TextInput id="meta_title" value={data.meta_title} onChange={(e) => updateField('meta_title', e.target.value)} />
                             <InputError message={errors.meta_title} />
                         </div>
                         <div className="sm:col-span-2">
@@ -248,7 +264,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                                 id="meta_description"
                                 rows={2}
                                 value={data.meta_description}
-                                onChange={(e) => setData('meta_description', e.target.value)}
+                                onChange={(e) => updateField('meta_description', e.target.value)}
                             />
                             <InputError message={errors.meta_description} />
                         </div>
@@ -264,7 +280,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                             id="google_analytics_id"
                             placeholder="G-XXXXXXXXXX"
                             value={data.google_analytics_id}
-                            onChange={(e) => setData('google_analytics_id', e.target.value)}
+                            onChange={(e) => updateField('google_analytics_id', e.target.value)}
                         />
                         <InputError message={errors.google_analytics_id} />
                     </div>

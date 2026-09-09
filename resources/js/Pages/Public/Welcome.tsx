@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import gsap from 'gsap';
 import PublicLayout from '@/Layouts/PublicLayout';
@@ -68,6 +68,12 @@ export default function Welcome({
     const { site, auth } = props;
     const heroRef = useRef<HTMLDivElement>(null);
     const headingTiltRef = usePointerTilt<HTMLHeadingElement>(5);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const goToSection = (id: string) => {
+        setMobileNavOpen(false);
+        scrollToId(id);
+    };
 
     useEffect(() => {
         if (!heroRef.current || PREFERS_REDUCED_MOTION) {
@@ -102,30 +108,69 @@ export default function Welcome({
             {/* Sticky nav - glass so the 3D backdrop still reads through it */}
             <header className="fixed inset-x-0 top-0 z-40 border-b border-white/[0.06] bg-background/60 backdrop-blur-xl">
                 <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-                    <button onClick={() => scrollToId('top')} className="text-sm font-semibold tracking-tight text-text">
+                    <button onClick={() => goToSection('top')} className="text-sm font-semibold tracking-tight text-text">
                         {name}
                     </button>
                     <div className="hidden items-center gap-6 sm:flex">
                         {NAV_SECTIONS.map((section) => (
                             <button
                                 key={section.id}
-                                onClick={() => scrollToId(section.id)}
+                                onClick={() => goToSection(section.id)}
                                 className="text-sm text-muted transition-colors hover:text-text"
                             >
                                 {section.label}
                             </button>
                         ))}
                     </div>
-                    {/* Never invite an anonymous visitor to try logging in -
-                        the admin/login link only exists once a session is
-                        already authenticated, and then it goes straight to
-                        the dashboard rather than back through /login. */}
-                    {auth.user && (
-                        <Link href={route('admin.dashboard')} className="text-xs text-muted hover:text-text">
-                            Dashboard
-                        </Link>
-                    )}
+                    <div className="flex items-center gap-4">
+                        {/* Never invite an anonymous visitor to try logging in -
+                            the admin/login link only exists once a session is
+                            already authenticated, and then it goes straight to
+                            the dashboard rather than back through /login. */}
+                        {auth.user && (
+                            <Link href={route('admin.dashboard')} className="hidden text-xs text-muted hover:text-text sm:inline">
+                                Dashboard
+                            </Link>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setMobileNavOpen((open) => !open)}
+                            aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+                            aria-expanded={mobileNavOpen}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-text sm:hidden"
+                        >
+                            {mobileNavOpen ? <CloseIcon /> : <MenuIcon />}
+                        </button>
+                    </div>
                 </nav>
+
+                {/* Mobile nav panel - the desktop links above are hidden below
+                    `sm`, so this is the only way to jump between sections on a
+                    phone. Kept in the DOM only while open so it never affects
+                    layout/tab order otherwise. */}
+                {mobileNavOpen && (
+                    <div className="border-t border-white/[0.06] bg-background/95 px-6 py-4 backdrop-blur-xl sm:hidden">
+                        <div className="flex flex-col gap-1">
+                            {NAV_SECTIONS.map((section) => (
+                                <button
+                                    key={section.id}
+                                    onClick={() => goToSection(section.id)}
+                                    className="rounded-lg px-3 py-2.5 text-left text-sm text-muted transition-colors hover:bg-white/5 hover:text-text"
+                                >
+                                    {section.label}
+                                </button>
+                            ))}
+                            {auth.user && (
+                                <Link
+                                    href={route('admin.dashboard')}
+                                    className="rounded-lg px-3 py-2.5 text-left text-sm text-muted transition-colors hover:bg-white/5 hover:text-text"
+                                >
+                                    Dashboard
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                )}
             </header>
 
             <main id="top" className="relative">
@@ -199,9 +244,10 @@ export default function Welcome({
                 </section>
 
                 {/* About */}
-                <section id="about" className="mx-auto max-w-5xl px-6 py-28">
+                <section id="about" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">About</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
                     <div className="mt-10 grid gap-8 sm:grid-cols-[minmax(0,260px)_1fr] sm:items-start">
@@ -260,9 +306,10 @@ export default function Welcome({
                 </section>
 
                 {/* Skills */}
-                <section id="skills" className="mx-auto max-w-5xl px-6 py-28">
+                <section id="skills" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Skills</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
                     {skillCategories.length > 0 ? (
@@ -319,9 +366,10 @@ export default function Welcome({
                 </section>
 
                 {/* Experience */}
-                <section id="experience" className="mx-auto max-w-4xl px-6 py-28">
+                <section id="experience" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Experience</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
                     <div className="mt-10 space-y-6">
@@ -362,9 +410,10 @@ export default function Welcome({
                 </section>
 
                 {/* Resume */}
-                <section id="resume" className="mx-auto max-w-4xl px-6 py-28">
+                <section id="resume" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Resume</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
                     {resumes.length > 0 ? (
@@ -375,11 +424,11 @@ export default function Welcome({
                                         href={resume.file_url ?? '#'}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="glass-panel group flex items-center justify-between gap-4 p-6"
+                                        className="glass-panel group flex items-center justify-between gap-4 p-6 transition-transform duration-300 hover:-translate-y-1"
                                     >
-                                        <div>
-                                            <h3 className="font-semibold text-text">{resume.role_title}</h3>
-                                            {resume.label && <p className="mt-1 text-sm text-muted">{resume.label}</p>}
+                                        <div className="min-w-0">
+                                            <h3 className="truncate font-semibold text-text">{resume.role_title}</h3>
+                                            {resume.label && <p className="mt-1 truncate text-sm text-muted">{resume.label}</p>}
                                             <span className="mt-2 inline-block text-[11px] uppercase tracking-widest text-muted/70">
                                                 Download PDF
                                             </span>
@@ -399,9 +448,10 @@ export default function Welcome({
                 </section>
 
                 {/* Projects */}
-                <section id="projects" className="mx-auto max-w-5xl px-6 py-28">
+                <section id="projects" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Projects</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
                     {projects.length > 0 ? (
@@ -507,44 +557,49 @@ export default function Welcome({
                 </section>
 
                 {/* Services */}
-                <section id="services" className="mx-auto max-w-5xl px-6 py-28">
+                <section id="services" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</h2>
+                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                     </Reveal>
 
-                    <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {services.map((service, index) => (
-                            <Reveal key={service.id} delay={(index % 3) * 0.08}>
-                                <FlipCard
-                                    heightClassName="h-48"
-                                    front={
-                                        <div className="glass-panel flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-                                            <span className="text-2xl" aria-hidden="true">
-                                                {service.icon ?? '⚡'}
-                                            </span>
-                                            <h3 className="font-semibold text-text">{service.title}</h3>
-                                            <span className="text-[11px] text-muted/70">Hover for details</span>
-                                        </div>
-                                    }
-                                    back={
-                                        <div className="glass-panel flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-                                            <p className="text-sm text-muted">
-                                                {service.description ?? service.short_description ?? 'Details coming soon.'}
-                                            </p>
-                                        </div>
-                                    }
-                                />
-                            </Reveal>
-                        ))}
-
-                        {services.length === 0 && (
-                            <p className="col-span-full text-center text-muted">Services coming soon.</p>
-                        )}
-                    </div>
+                    {services.length > 0 ? (
+                        <Carousel
+                            className="mt-10"
+                            ariaLabel="Services"
+                            slideClassName="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+                        >
+                            {services.map((service, index) => (
+                                <Reveal key={service.id} delay={(index % 3) * 0.08}>
+                                    <FlipCard
+                                        heightClassName="h-48"
+                                        front={
+                                            <div className="glass-panel flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+                                                <span className="text-2xl" aria-hidden="true">
+                                                    {service.icon ?? '⚡'}
+                                                </span>
+                                                <h3 className="font-semibold text-text">{service.title}</h3>
+                                                <span className="text-[11px] text-muted/70">Hover for details</span>
+                                            </div>
+                                        }
+                                        back={
+                                            <div className="glass-panel flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+                                                <p className="text-sm text-muted">
+                                                    {service.description ?? service.short_description ?? 'Details coming soon.'}
+                                                </p>
+                                            </div>
+                                        }
+                                    />
+                                </Reveal>
+                            ))}
+                        </Carousel>
+                    ) : (
+                        <p className="mt-10 text-center text-muted">Services coming soon.</p>
+                    )}
                 </section>
 
                 {/* Contact */}
-                <section id="contact" className="mx-auto max-w-2xl px-6 py-28 text-center">
+                <section id="contact" className="mx-auto max-w-2xl px-6 py-16 sm:py-24 text-center">
                     <Reveal>
                         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</h2>
                         <p className="mt-6 text-2xl font-semibold text-text">Let's build something together.</p>
@@ -591,6 +646,22 @@ function DownloadIcon() {
     return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
+        </svg>
+    );
+}
+
+function MenuIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    );
+}
+
+function CloseIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6l-12 12" />
         </svg>
     );
 }
