@@ -10,6 +10,11 @@ interface CarouselProps {
     slideClassName?: string;
     className?: string;
     ariaLabel: string;
+    /** Auto-advance to the next slide on a timer. Off by default so admin-
+     * style usages stay static unless a caller opts in. */
+    autoPlay?: boolean;
+    /** Milliseconds between auto-advances. */
+    autoPlayInterval?: number;
 }
 
 /**
@@ -22,9 +27,17 @@ interface CarouselProps {
  * dots below are a thin convenience layer that just scrolls the same
  * container - no extra JS animation runtime needed.
  */
-export function Carousel({ children, slideClassName, className, ariaLabel }: CarouselProps) {
+export function Carousel({
+    children,
+    slideClassName,
+    className,
+    ariaLabel,
+    autoPlay = false,
+    autoPlayInterval = 4500,
+}: CarouselProps) {
     const trackRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
     const slideCount = children.length;
 
     const scrollToIndex = useCallback((index: number) => {
@@ -70,12 +83,39 @@ export function Carousel({ children, slideClassName, className, ariaLabel }: Car
         };
     }, []);
 
+    // A setTimeout re-armed on every activeIndex change (rather than one
+    // setInterval) so the countdown naturally resets after any manual
+    // interaction (button click or swipe) instead of firing mid-gesture.
+    useEffect(() => {
+        if (!autoPlay || isPaused || slideCount <= 1) {
+            return;
+        }
+
+        if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            scrollToIndex((activeIndex + 1) % slideCount);
+        }, autoPlayInterval);
+
+        return () => window.clearTimeout(timeout);
+    }, [autoPlay, autoPlayInterval, isPaused, activeIndex, slideCount, scrollToIndex]);
+
     if (slideCount === 0) {
         return null;
     }
 
     return (
-        <div className={cn('relative', className)}>
+        <div
+            className={cn('relative', className)}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
+        >
             <div
                 ref={trackRef}
                 role="region"

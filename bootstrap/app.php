@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            // 'track.visitor' => \App\Http\Middleware\TrackVisitor::class, // wired up in the CRM/Analytics phase
+            'track.visitor' => \App\Http\Middleware\TrackVisitor::class,
         ]);
 
         $middleware->trustProxies(at: '*');

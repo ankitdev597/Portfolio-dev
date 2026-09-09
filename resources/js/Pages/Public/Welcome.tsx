@@ -17,6 +17,14 @@ import type { Experience, Profile, PublicProject, Resume, Service, SkillCategory
 const PREFERS_REDUCED_MOTION =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+interface SeoProps {
+    title: string | null;
+    description: string | null;
+    keywords: string | null;
+    ogImageUrl: string | null;
+    canonicalUrl: string | null;
+}
+
 interface WelcomeProps {
     profile: Profile | null;
     skillCategories: SkillCategory[];
@@ -26,6 +34,7 @@ interface WelcomeProps {
     resumes: Resume[];
     socialLinks: SocialLink[];
     whatsappLink: string | null;
+    seo: SeoProps;
 }
 
 const NAV_SECTIONS = [
@@ -63,6 +72,7 @@ export default function Welcome({
     resumes,
     socialLinks,
     whatsappLink,
+    seo,
 }: WelcomeProps) {
     const { props } = usePage();
     const { site, auth } = props;
@@ -99,9 +109,42 @@ export default function Welcome({
         'Full stack development, AI/LLM integration, real-time applications, and cloud/DevOps.';
     const contactHref = whatsappLink ?? (site.email ? `mailto:${site.email}` : undefined);
 
+    const seoTitle = seo.title ?? `${name} - Full Stack Developer`;
+    const seoDescription = seo.description ?? tagline;
+
+    const personJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name,
+        jobTitle: headline || undefined,
+        description: profile?.short_bio ?? seoDescription,
+        image: seo.ogImageUrl ?? profile?.avatar_url ?? undefined,
+        url: seo.canonicalUrl ?? undefined,
+        email: site.email ? `mailto:${site.email}` : undefined,
+        sameAs: socialLinks.map((link) => link.url),
+    };
+
     return (
         <PublicLayout>
-            <Head title="Home" />
+            <Head title={seoTitle}>
+                <meta name="description" content={seoDescription} />
+                {seo.keywords && <meta name="keywords" content={seo.keywords} />}
+                {seo.canonicalUrl && <link rel="canonical" href={seo.canonicalUrl} />}
+
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={seoTitle} />
+                <meta property="og:description" content={seoDescription} />
+                {seo.canonicalUrl && <meta property="og:url" content={seo.canonicalUrl} />}
+                {seo.ogImageUrl && <meta property="og:image" content={seo.ogImageUrl} />}
+                <meta property="og:site_name" content={name} />
+
+                <meta name="twitter:card" content={seo.ogImageUrl ? 'summary_large_image' : 'summary'} />
+                <meta name="twitter:title" content={seoTitle} />
+                <meta name="twitter:description" content={seoDescription} />
+                {seo.ogImageUrl && <meta name="twitter:image" content={seo.ogImageUrl} />}
+
+                <script type="application/ld+json">{JSON.stringify(personJsonLd)}</script>
+            </Head>
 
             <Preloader name={name} />
 
@@ -317,6 +360,7 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Skill categories"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
+                            autoPlay
                         >
                             {skillCategories.map((category, index) => (
                                 <Reveal key={category.id} delay={(index % 2) * 0.1}>
@@ -459,6 +503,8 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Projects"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
+                            autoPlay
+                            autoPlayInterval={5500}
                         >
                             {projects.map((project, index) => (
                                 <Reveal key={project.id} delay={(index % 2) * 0.1}>
@@ -568,6 +614,8 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Services"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+                            autoPlay
+                            autoPlayInterval={5000}
                         >
                             {services.map((service, index) => (
                                 <Reveal key={service.id} delay={(index % 3) * 0.08}>

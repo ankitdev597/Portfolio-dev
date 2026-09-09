@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import type { PropsWithChildren } from 'react';
 import { useLenis } from '@/Hooks/useLenis';
+import { CookieConsent } from '@/Components/UI/CookieConsent';
+import { CustomCursor } from '@/Components/UI/CustomCursor';
 
 // Lazy-loaded so the three.js/R3F bundle (see vite.config.ts's `three`
 // manualChunks group) is only ever fetched on pages that use this layout -
@@ -22,7 +24,9 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             <Suspense fallback={null}>
                 <SiteScene />
             </Suspense>
+            <CustomCursor />
             {children}
+            <CookieConsent />
         </>
     );
 }

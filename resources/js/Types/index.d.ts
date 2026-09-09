@@ -281,6 +281,27 @@ export interface AdminSiteSettings {
     [key: string]: unknown;
 }
 
+export interface DashboardStats {
+    projects: { total: number; published: number; featured: number };
+    skills: number;
+    technologies: number;
+    services: number;
+    experience: number;
+    certifications: number;
+    resumes: number;
+    visitors: { total: number; today: number; online_now: number; returning: number };
+    page_views: { total: number; today: number };
+    messages: { total: number; new: number };
+}
+
+export interface ActivityLogEntry {
+    id: number;
+    action: string;
+    description: string | null;
+    user_name: string | null;
+    created_at: string | null;
+}
+
 export interface PaginatedData<T> {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];

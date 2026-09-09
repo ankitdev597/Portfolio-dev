@@ -7,10 +7,12 @@ use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\Resume;
+use App\Models\SeoSetting;
 use App\Models\Service;
 use App\Models\SkillCategory;
 use App\Models\SocialLink;
 use App\Services\SiteSettingService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,8 +26,10 @@ use Inertia\Response;
  */
 class HomeController extends Controller
 {
-    public function __invoke(SiteSettingService $siteSettings): Response
+    public function __invoke(Request $request, SiteSettingService $siteSettings): Response
     {
+        $seoSetting = SeoSetting::query()->where('page_key', 'home')->first();
+
         return Inertia::render('Public/Welcome', [
             // Single-profile site (one CMS owner) - `first()` rather than a
             // hardcoded ID stays correct even if the admin user is ever
@@ -65,6 +69,18 @@ class HomeController extends Controller
             'resumes' => Resume::query()->active()->get(),
 
             'whatsappLink' => $siteSettings->whatsappLink(),
+
+            // Consolidated so Welcome.tsx's <Head> never has to fall back
+            // across two different prop shapes - SeoSetting (per-page,
+            // admin-managed) wins, then site_settings' generic meta_title/
+            // meta_description (spec: "og image for seo all of thing").
+            'seo' => [
+                'title' => $seoSetting?->title ?? $siteSettings->get('meta_title') ?? $siteSettings->get('site_title'),
+                'description' => $seoSetting?->description ?? $siteSettings->get('meta_description'),
+                'keywords' => $seoSetting?->keywords,
+                'ogImageUrl' => $seoSetting?->og_image_url ?? $siteSettings->imageUrl('logo'),
+                'canonicalUrl' => $seoSetting?->canonical_url ?? $request->url(),
+            ],
         ]);
     }
 }

@@ -89,6 +89,15 @@
         box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12);
     }
 
+    /* Set by CustomCursor.tsx while it's mounted (desktop pointer-fine
+     * only) - hides the native cursor so its trailing dot/ring reads as
+     * the only cursor, not a duplicate alongside it. Always paired with
+     * that component's cleanup removing the class, so this never sticks. */
+    .cursor-none,
+    .cursor-none * {
+        cursor: none !important;
+    }
+
     /* Reusable signature text gradient - vivid red -> maroon -> rose (see
      * the Crimson Noir palette above) - for headings/eyebrows that want
      * the palette's signature look instead of a flat solid color. Class

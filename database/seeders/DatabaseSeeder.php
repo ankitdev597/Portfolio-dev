@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ExperienceSeeder::class,
             ProjectSeeder::class,
             RealProjectSeeder::class,
+            SeoSettingSeeder::class,
         ]);
     }
 }

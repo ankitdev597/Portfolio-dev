@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Route;
 | database-backed content. This route/controller/page wiring is the
 | Phase-1 skeleton it will grow from.
 */
-Route::get('/', HomeController::class)->name('home');
+Route::get('/', HomeController::class)->middleware('track.visitor')->name('home');
 
 /*
 |--------------------------------------------------------------------------
