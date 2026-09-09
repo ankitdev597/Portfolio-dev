@@ -133,6 +133,18 @@ export interface PublicProject {
     technologies: { id: number; name: string }[];
 }
 
+export interface Resume {
+    id: number;
+    role_title: string;
+    label: string | null;
+    file_path: string;
+    file_original_name: string | null;
+    /** Computed on the model (Resume::fileUrl()) - ready-to-use public URL. */
+    file_url: string | null;
+    is_active: boolean;
+    display_order: number;
+}
+
 export interface SocialLink {
     id: number;
     platform: string;

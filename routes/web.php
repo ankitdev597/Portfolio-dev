@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ExperienceController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectCategoryController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\ResumeController;
 use App\Http\Controllers\Admin\SeoSettingController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -102,6 +103,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
 
     Route::resource('social-links', SocialLinkController::class)
         ->parameters(['social-links' => 'socialLink'])
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Role-tagged resume PDFs (e.g. "Backend Developer", "Full Stack
+    // Developer") shown on the public Resume section - small bounded
+    // list, modal-based CRUD like the rest of this batch. Distinct from
+    // the single bio resume on Profile below: that one is the owner's
+    // general CV, these are purpose-built variants a visitor can pick
+    // between by role.
+    Route::resource('resumes', ResumeController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
     // Batch 5: the public-facing Profile (bio/avatar/resume) - a single

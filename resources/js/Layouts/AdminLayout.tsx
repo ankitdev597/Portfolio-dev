@@ -84,6 +84,11 @@ export default function AdminLayout({ title, children }: PropsWithChildren<{ tit
                     active: route().current('admin.social-links.*'),
                 },
                 {
+                    label: 'Resumes',
+                    href: route('admin.resumes.index'),
+                    active: route().current('admin.resumes.*'),
+                },
+                {
                     label: 'Profile',
                     href: route('admin.profile.edit'),
                     active: route().current('admin.profile.*'),

@@ -17,11 +17,17 @@ class TechnologySeeder extends Seeder
     {
         $technologies = [
             'frontend' => ['React.js', 'Angular', 'Vue.js', 'JavaScript', 'TypeScript'],
-            'backend' => ['Laravel', 'PHP', 'Node.js', 'Express.js', 'WebSockets'],
-            'database' => ['MySQL', 'MongoDB', 'Oracle'],
-            'cloud_devops' => ['AWS', 'EC2', 'SES', 'SNS', 'CI/CD', 'Linux', 'Nginx', 'Apache', 'SSL'],
-            'ai_llm' => ['OpenAI API', 'LLM Integration'],
-            'tools' => ['Git', 'GitHub', 'Postman'],
+            // Laravel Reverb and Spatie Laravel-Permission are project-catalogue
+            // additions (spec: real project stack), same "from what's actually
+            // used" rule as the resume-sourced entries above.
+            'backend' => ['Laravel', 'PHP', 'Node.js', 'Express.js', 'WebSockets', 'Laravel Reverb', 'Spatie Laravel-Permission'],
+            'database' => ['MySQL', 'MongoDB', 'Oracle', 'Redis'],
+            'cloud_devops' => ['AWS', 'EC2', 'SES', 'SNS', 'CI/CD', 'Linux', 'Nginx', 'Apache', 'SSL', 'Firebase', 'Google Cloud'],
+            'ai_llm' => ['OpenAI API', 'LLM Integration', 'Ollama'],
+            // Third-party APIs/SDKs (calling, messaging, payments, financial
+            // data) - grouped here alongside Git/GitHub/Postman since none of
+            // the other categories fit an integration vendor cleanly.
+            'tools' => ['Git', 'GitHub', 'Postman', 'Agora', 'Twilio', 'Stripe', 'PayPal', 'CinetPay', 'PawaPay', 'Plaid'],
         ];
 
         $order = 0;

@@ -8,6 +8,7 @@ use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\ProjectCategory;
+use App\Models\Resume;
 use App\Models\SeoSetting;
 use App\Models\Service;
 use App\Models\SiteSetting;
@@ -70,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
             Service::class,
             Certification::class,
             SocialLink::class,
+            Resume::class,
         ] as $model) {
             Gate::policy($model, ContentPolicy::class);
         }

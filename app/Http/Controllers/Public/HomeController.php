@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
+use App\Models\Resume;
 use App\Models\Service;
 use App\Models\SkillCategory;
 use App\Models\SocialLink;
@@ -57,6 +58,11 @@ class HomeController extends Controller
                 ->get(['id', 'title', 'slug', 'short_description', 'thumbnail_path', 'classification', 'is_featured', 'github_url', 'live_url']),
 
             'socialLinks' => SocialLink::query()->active()->get(),
+
+            // Role-tagged resume PDFs (see routes/web.php) - deliberately
+            // empty until the admin uploads at least one, same
+            // never-show-unpublished-content shape as `projects` above.
+            'resumes' => Resume::query()->active()->get(),
 
             'whatsappLink' => $siteSettings->whatsappLink(),
         ]);

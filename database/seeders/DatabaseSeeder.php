@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             ExperienceSeeder::class,
             ProjectSeeder::class,
-            DummyProjectSeeder::class,
+            RealProjectSeeder::class,
         ]);
     }
 }
