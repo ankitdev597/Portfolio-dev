@@ -20,6 +20,17 @@ if [ "$APP_ROLE" = "web" ]; then
     php artisan storage:link || true
     php artisan migrate --force
 
+    # All seeders in database/seeders/ are idempotent (updateOrCreate /
+    # firstOrCreate keyed on slug/email/etc.), so it's safe to run this on
+    # every boot rather than once by hand - a fresh deploy (new Postgres
+    # instance, or the first deploy ever) ends up fully populated with no
+    # extra manual step. AdminUserSeeder specifically no-ops (with a
+    # warning, not a failure) unless ADMIN_SEED_PASSWORD is set in the
+    # environment - see that seeder's own docblock. Never commit that
+    # password's value to render.yaml; set it only via the Render
+    # dashboard/API, same as APP_KEY should have been from the start.
+    php artisan db:seed --force
+
     # Render's free plan has no "Background Worker" service type (see
     # render.yaml), so the queue worker runs in-process here alongside the
     # web server instead of as its own service. The while-loop restarts it
