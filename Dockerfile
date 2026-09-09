@@ -41,7 +41,7 @@ FROM php:8.3-cli-bookworm AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev libzip-dev libpng-dev libonig-dev libicu-dev unzip git \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql mbstring zip gd bcmath intl \
+    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql mbstring zip gd bcmath intl pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
