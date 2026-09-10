@@ -40,15 +40,21 @@ return [
         ],
 
         /**
-         * Added for the Render deployment (Render offers managed Postgres,
-         * not MySQL). Local dev (XAMPP) keeps using the 'mysql' connection
-         * above via DB_CONNECTION=mysql in .env - this only activates when
-         * DB_CONNECTION=pgsql, e.g. on Render where DB_URL is wired to the
-         * managed Postgres instance's connection string.
+         * Added for Postgres-backed deployments (Render's managed Postgres,
+         * and Neon via Vercel's Marketplace integration - see
+         * VERCEL_DEPLOY.md). Local dev (XAMPP) keeps using the 'mysql'
+         * connection above via DB_CONNECTION=mysql in .env - this only
+         * activates when DB_CONNECTION=pgsql.
+         *
+         * 'url' falls back to DATABASE_URL (not just DB_URL) because that's
+         * the exact variable name Vercel's Neon integration auto-injects
+         * into every deployment once installed - no manual copy/rename
+         * step needed. DB_URL still wins if both happen to be set (e.g.
+         * Render, which uses DB_URL).
          */
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => env('DB_URL', env('DATABASE_URL')),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),

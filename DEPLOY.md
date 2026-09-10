@@ -1,5 +1,10 @@
 # Deploying to Render
 
+> **Legacy / optional.** Vercel is now the primary deployment target — see
+> `VERCEL_DEPLOY.md`. Nothing here is required anymore; this file and
+> `render.yaml` are left as a working fallback if you ever want them, but
+> the live site doesn't depend on Render.
+
 This repo deploys as a Render **Blueprint** (`render.yaml`), which provisions
 everything in one pass:
 

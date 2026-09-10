@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\System\DeployHookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +33,19 @@ use Illuminate\Support\Facades\Route;
 | Phase-1 skeleton it will grow from.
 */
 Route::get('/', HomeController::class)->middleware('track.visitor')->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Deploy tooling (Vercel target only - see VERCEL_DEPLOY.md)
+|--------------------------------------------------------------------------
+| Bearer-token protected inside the controller itself, not session auth -
+| rate-limited here on top of that as defence in depth against brute-forcing
+| the token. 404s everywhere DEPLOY_HOOK_SECRET isn't set, so this is inert
+| on the existing Render deployment.
+*/
+Route::post('/system/deploy-hook', DeployHookController::class)
+    ->middleware('throttle:5,1')
+    ->name('system.deploy-hook');
 
 /*
 |--------------------------------------------------------------------------

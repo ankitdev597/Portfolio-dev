@@ -20,4 +20,14 @@ return [
         'maxmind_database_path' => env('GEOIP_MAXMIND_DB_PATH'),
     ],
 
+    // Shared-secret bearer token for POST /system/deploy-hook (see
+    // App\Http\Controllers\System\DeployHookController and
+    // App\Services\DeploymentService). Unset in an environment => the
+    // endpoint 404s unconditionally, so it's inert unless deliberately
+    // configured. Only ever set via the hosting platform's own env var
+    // dashboard, never committed - see VERCEL_DEPLOY.md.
+    'deploy_hook' => [
+        'secret' => env('DEPLOY_HOOK_SECRET'),
+    ],
+
 ];

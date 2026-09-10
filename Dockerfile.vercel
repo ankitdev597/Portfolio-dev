@@ -74,6 +74,7 @@ ENV PORT=80 \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
     DB_CONNECTION=pgsql \
+    DB_SSLMODE=require \
     CACHE_STORE=database \
     SESSION_DRIVER=cookie \
     QUEUE_CONNECTION=sync \
