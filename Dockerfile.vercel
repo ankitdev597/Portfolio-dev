@@ -45,7 +45,20 @@ COPY composer.jso[n] composer.loc[k] ./
 RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs --optimize-autoloader
 
 COPY . .
-RUN composer dump-autoload --optimize --no-dev
+# --no-scripts here too: without it, `composer dump-autoload`'s
+# post-autoload-dump hook runs `php artisan package:discover`, which boots
+# the ENTIRE Laravel framework right now, using this composer:2 stage's own
+# bundled PHP (not FrankenPHP's PHP 8.3 build the app actually runs on)
+# and with no .env and none of Stage 3's runtime env vars in scope. That's
+# exactly what produced the "Uncaught ArgumentCountError: Too few arguments
+# to function Illuminate\Support\Manager::createDriver()" 500 seen in
+# production - config resolved from a bare, env-less boot on a foreign PHP
+# build got baked into bootstrap/cache/packages.php and services.php here,
+# then copied byte-for-byte into the runtime image below. Skipping it
+# means Laravel just discovers packages the normal way on each request
+# instead of from a stale cached manifest - a portfolio site's traffic
+# doesn't need that micro-optimization, and correctness matters more here.
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 ###############################################################################
 # Stage 3: runtime image (FrankenPHP, per Vercel's Laravel+Docker guide)
