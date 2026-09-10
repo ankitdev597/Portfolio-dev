@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ProjectSeeder::class,
             RealProjectSeeder::class,
             SeoSettingSeeder::class,
+            ResumeSeeder::class,
         ]);
     }
 }

@@ -287,7 +287,7 @@ export default function Welcome({
                 </section>
 
                 {/* About */}
-                <section id="about" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
+                <section id="about" className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">About</h2>
                         <span className="divider-premium" />
@@ -349,7 +349,7 @@ export default function Welcome({
                 </section>
 
                 {/* Skills */}
-                <section id="skills" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
+                <section id="skills" className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Skills</h2>
                         <span className="divider-premium" />
@@ -360,6 +360,7 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Skill categories"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
+                            autoPlay
                         >
                             {skillCategories.map((category, index) => (
                                 <Reveal key={category.id} delay={(index % 2) * 0.1}>
@@ -409,7 +410,7 @@ export default function Welcome({
                 </section>
 
                 {/* Experience */}
-                <section id="experience" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
+                <section id="experience" className="mx-auto max-w-4xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Experience</h2>
                         <span className="divider-premium" />
@@ -453,7 +454,7 @@ export default function Welcome({
                 </section>
 
                 {/* Resume */}
-                <section id="resume" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
+                <section id="resume" className="mx-auto max-w-4xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Resume</h2>
                         <span className="divider-premium" />
@@ -496,7 +497,7 @@ export default function Welcome({
                 </section>
 
                 {/* Projects */}
-                <section id="projects" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
+                <section id="projects" className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Projects</h2>
                         <span className="divider-premium" />
@@ -507,6 +508,8 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Projects"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
+                            autoPlay
+                            autoPlayInterval={5500}
                         >
                             {projects.map((project, index) => (
                                 <Reveal key={project.id} delay={(index % 2) * 0.1}>
@@ -605,7 +608,7 @@ export default function Welcome({
                 </section>
 
                 {/* Services */}
-                <section id="services" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
+                <section id="services" className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</h2>
                         <span className="divider-premium" />
@@ -616,6 +619,8 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Services"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+                            autoPlay
+                            autoPlayInterval={5000}
                         >
                             {services.map((service, index) => (
                                 <Reveal key={service.id} delay={(index % 3) * 0.08}>
@@ -647,7 +652,7 @@ export default function Welcome({
                 </section>
 
                 {/* Contact */}
-                <section id="contact" className="mx-auto max-w-2xl px-6 py-16 sm:py-24 text-center">
+                <section id="contact" className="mx-auto max-w-2xl px-6 py-10 sm:py-16 text-center">
                     <Reveal>
                         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</h2>
                         <p className="mt-6 text-2xl font-semibold text-text">Let's build something together.</p>
