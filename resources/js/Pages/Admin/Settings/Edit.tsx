@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
@@ -48,14 +48,33 @@ interface SettingsForm {
  * own file inputs. Super-Admin-only (see routes/web.php + SiteSettingPolicy)
  * since this is system-critical config, not Editor-manageable content.
  */
+// Every text/textarea field driven by `name` below - used at submit time to
+// read straight from the DOM as a fallback (see `submit`'s docblock).
+const TEXT_FIELD_NAMES = [
+    'site_name',
+    'site_title',
+    'headline',
+    'email',
+    'phone',
+    'location',
+    'whatsapp_number',
+    'whatsapp_default_message',
+    'github_url',
+    'linkedin_url',
+    'meta_title',
+    'meta_description',
+    'google_analytics_id',
+] as const;
+
 export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }: SettingsEditProps) {
+    const formRef = useRef<HTMLFormElement>(null);
     const [previews, setPreviews] = useState<{ favicon: string | null; logo: string | null; profile_image: string | null }>({
         favicon: null,
         logo: null,
         profile_image: null,
     });
 
-    const { data, setData, patch, processing, errors, clearErrors } = useForm<SettingsForm>({
+    const { data, setData, patch, processing, errors, clearErrors, transform } = useForm<SettingsForm>({
         site_name: (settings.site_name as string) ?? '',
         site_title: (settings.site_title as string) ?? '',
         headline: (settings.headline as string) ?? '',
@@ -111,6 +130,35 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
+
+        /**
+         * On some mobile browsers, autofill (contact/name suggestions) sets
+         * an input's on-screen value directly without firing the React
+         * `input`/`change` event the controlled TextInput relies on - the
+         * field visually shows "Ankit Vishwakarma" but React's `data` state
+         * never updated, so this PATCH would silently send an empty
+         * site_name and the server correctly (but confusingly) rejects it
+         * as required. `transform` reads every text field straight off the
+         * live DOM at submit time - whatever's actually on screen is what
+         * gets sent, closing that gap regardless of which event fired.
+         */
+        transform((formData) => {
+            const form = formRef.current;
+            if (!form) {
+                return formData;
+            }
+
+            const merged = { ...formData };
+            for (const field of TEXT_FIELD_NAMES) {
+                const el = form.elements.namedItem(field);
+                if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+                    merged[field] = el.value;
+                }
+            }
+
+            return merged;
+        });
+
         patch(route('admin.settings.update'), { forceFormData: true, preserveScroll: true });
     };
 
@@ -155,19 +203,25 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
         <AdminLayout title="Settings">
             <Head title="Settings" />
 
-            <form onSubmit={submit} className="space-y-6">
+            <form ref={formRef} onSubmit={submit} className="space-y-6" autoComplete="off">
                 <div className="glass-panel p-6">
                     <h2 className="text-lg font-semibold text-text">General</h2>
 
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="site_name" value="Site name" />
-                            <TextInput id="site_name" value={data.site_name} onChange={(e) => updateField('site_name', e.target.value)} />
+                            <TextInput
+                                id="site_name"
+                                name="site_name"
+                                autoComplete="off"
+                                value={data.site_name}
+                                onChange={(e) => updateField('site_name', e.target.value)}
+                            />
                             <InputError message={errors.site_name} />
                         </div>
                         <div>
                             <InputLabel htmlFor="headline" value="Headline" />
-                            <TextInput id="headline" value={data.headline} onChange={(e) => updateField('headline', e.target.value)} />
+                            <TextInput id="headline" name="headline" value={data.headline} onChange={(e) => updateField('headline', e.target.value)} />
                             <InputError message={errors.headline} />
                         </div>
                     </div>
@@ -187,23 +241,24 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="email" value="Email" />
-                            <TextInput id="email" value={data.email} onChange={(e) => updateField('email', e.target.value)} />
+                            <TextInput id="email" name="email" value={data.email} onChange={(e) => updateField('email', e.target.value)} />
                             <InputError message={errors.email} />
                         </div>
                         <div>
                             <InputLabel htmlFor="phone" value="Phone (optional)" />
-                            <TextInput id="phone" value={data.phone} onChange={(e) => updateField('phone', e.target.value)} />
+                            <TextInput id="phone" name="phone" value={data.phone} onChange={(e) => updateField('phone', e.target.value)} />
                             <InputError message={errors.phone} />
                         </div>
                         <div>
                             <InputLabel htmlFor="location" value="Location (optional)" />
-                            <TextInput id="location" value={data.location} onChange={(e) => updateField('location', e.target.value)} />
+                            <TextInput id="location" name="location" value={data.location} onChange={(e) => updateField('location', e.target.value)} />
                             <InputError message={errors.location} />
                         </div>
                         <div>
                             <InputLabel htmlFor="whatsapp_number" value="WhatsApp number (with country code, digits only)" />
                             <TextInput
                                 id="whatsapp_number"
+                                name="whatsapp_number"
                                 placeholder="918112656226"
                                 value={data.whatsapp_number}
                                 onChange={(e) => updateField('whatsapp_number', e.target.value)}
@@ -214,6 +269,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                             <InputLabel htmlFor="whatsapp_default_message" value="WhatsApp default message" />
                             <Textarea
                                 id="whatsapp_default_message"
+                                name="whatsapp_default_message"
                                 rows={2}
                                 value={data.whatsapp_default_message}
                                 onChange={(e) => updateField('whatsapp_default_message', e.target.value)}
@@ -229,13 +285,14 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="github_url" value="GitHub URL" />
-                            <TextInput id="github_url" value={data.github_url} onChange={(e) => updateField('github_url', e.target.value)} />
+                            <TextInput id="github_url" name="github_url" value={data.github_url} onChange={(e) => updateField('github_url', e.target.value)} />
                             <InputError message={errors.github_url} />
                         </div>
                         <div>
                             <InputLabel htmlFor="linkedin_url" value="LinkedIn URL" />
                             <TextInput
                                 id="linkedin_url"
+                                name="linkedin_url"
                                 value={data.linkedin_url}
                                 onChange={(e) => updateField('linkedin_url', e.target.value)}
                             />
@@ -250,18 +307,19 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <InputLabel htmlFor="site_title" value="Browser tab title" />
-                            <TextInput id="site_title" value={data.site_title} onChange={(e) => updateField('site_title', e.target.value)} />
+                            <TextInput id="site_title" name="site_title" value={data.site_title} onChange={(e) => updateField('site_title', e.target.value)} />
                             <InputError message={errors.site_title} />
                         </div>
                         <div>
                             <InputLabel htmlFor="meta_title" value="Meta title" />
-                            <TextInput id="meta_title" value={data.meta_title} onChange={(e) => updateField('meta_title', e.target.value)} />
+                            <TextInput id="meta_title" name="meta_title" value={data.meta_title} onChange={(e) => updateField('meta_title', e.target.value)} />
                             <InputError message={errors.meta_title} />
                         </div>
                         <div className="sm:col-span-2">
                             <InputLabel htmlFor="meta_description" value="Meta description" />
                             <Textarea
                                 id="meta_description"
+                                name="meta_description"
                                 rows={2}
                                 value={data.meta_description}
                                 onChange={(e) => updateField('meta_description', e.target.value)}
@@ -278,6 +336,7 @@ export default function Edit({ settings, faviconUrl, logoUrl, profileImageUrl }:
                         <InputLabel htmlFor="google_analytics_id" value="Google Analytics ID (optional)" />
                         <TextInput
                             id="google_analytics_id"
+                            name="google_analytics_id"
                             placeholder="G-XXXXXXXXXX"
                             value={data.google_analytics_id}
                             onChange={(e) => updateField('google_analytics_id', e.target.value)}

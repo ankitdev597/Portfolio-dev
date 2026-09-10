@@ -24,6 +24,16 @@
     --muted: 168 130 130;          /* #a88282 - red-tinted grey */
     --border: 255 255 255;
     --border-opacity: 0.08;
+
+    /*
+     * Premium accent (v5) - a restrained metallic gold, layered ON TOP of
+     * Crimson Noir rather than replacing any of it (the black-and-red mix
+     * stays the dominant palette per direct feedback). Used sparingly -
+     * section dividers, a hairline on hover, a whisper in card shadows -
+     * the classic luxury pairing of deep red/black with gold trim, never
+     * as a competing dominant color.
+     */
+    --gold: 212 175 55;            /* #d4af37 - antique/metallic gold */
 }
 
 @theme {
@@ -35,6 +45,7 @@
     --color-accent: rgb(var(--accent));
     --color-text: rgb(var(--text));
     --color-muted: rgb(var(--muted));
+    --color-gold: rgb(var(--gold));
 
     --font-sans: 'Inter var', ui-sans-serif, system-ui, sans-serif;
 }
@@ -86,7 +97,37 @@
 
     .glass-panel:hover {
         border-color: rgb(var(--primary) / 0.3);
-        box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12);
+        /* A whisper of gold layered under the red glow - the shadow most
+         * viewers will only register as "richer", not consciously notice
+         * as a second color. */
+        box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12),
+            0 2px 24px -8px rgb(var(--gold) / 0.15);
+    }
+
+    /* Thin metallic-gold divider for section headings - the "black, red,
+     * gold" luxury trim, used only for these hairlines so it reads as an
+     * intentional accent rather than a second competing brand color. */
+    .divider-premium {
+        @apply mx-auto mt-3 block h-px w-16;
+        background-image: linear-gradient(
+            90deg,
+            transparent,
+            rgb(var(--primary) / 0.7),
+            rgb(var(--gold) / 0.9),
+            rgb(var(--primary) / 0.7),
+            transparent
+        );
+    }
+
+    /* Optional premium gradient text treatment (red -> gold -> red) for a
+     * headline that wants the metallic-trim look at display size. Not
+     * applied by default anywhere text needs to stay small/dense - a
+     * gradient fill hurts legibility below ~20px. */
+    .text-premium {
+        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--gold)), rgb(var(--primary)));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
     }
 
     /* Set by CustomCursor.tsx while it's mounted (desktop pointer-fine
@@ -115,7 +156,14 @@
         transition-[filter,box-shadow] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none;
         background-image: linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary)));
-        box-shadow: 0 12px 30px -10px rgb(var(--primary) / 0.55);
+        box-shadow: 0 12px 30px -10px rgb(var(--primary) / 0.55), inset 0 0 0 1px rgb(var(--gold) / 0);
+        transition: filter 300ms, box-shadow 300ms;
+    }
+
+    /* Thin gold hairline fades in on hover only - a restrained "premium
+     * trim" cue rather than a permanently gold-rimmed button. */
+    .btn-primary:hover {
+        box-shadow: 0 16px 36px -10px rgb(var(--primary) / 0.6), inset 0 0 0 1px rgb(var(--gold) / 0.4);
     }
 
     .btn-secondary {

@@ -290,7 +290,7 @@ export default function Welcome({
                 <section id="about" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">About</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     <div className="mt-10 grid gap-8 sm:grid-cols-[minmax(0,260px)_1fr] sm:items-start">
@@ -352,7 +352,7 @@ export default function Welcome({
                 <section id="skills" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Skills</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     {skillCategories.length > 0 ? (
@@ -360,7 +360,6 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Skill categories"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
-                            autoPlay
                         >
                             {skillCategories.map((category, index) => (
                                 <Reveal key={category.id} delay={(index % 2) * 0.1}>
@@ -413,7 +412,7 @@ export default function Welcome({
                 <section id="experience" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Experience</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     <div className="mt-10 space-y-6">
@@ -457,7 +456,7 @@ export default function Welcome({
                 <section id="resume" className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Resume</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     {resumes.length > 0 ? (
@@ -466,6 +465,11 @@ export default function Welcome({
                                 <Reveal key={resume.id} delay={(index % 2) * 0.1}>
                                     <a
                                         href={resume.file_url ?? '#'}
+                                        // `download` forces a save-as instead of the browser opening
+                                        // the PDF in a viewer tab - only honored by the browser for
+                                        // same-origin URLs, which is why target/rel are kept too as a
+                                        // graceful fallback for cross-origin file storage (S3/R2).
+                                        download={resume.file_original_name ?? true}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="glass-panel group flex items-center justify-between gap-4 p-6 transition-transform duration-300 hover:-translate-y-1"
@@ -495,7 +499,7 @@ export default function Welcome({
                 <section id="projects" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Projects</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     {projects.length > 0 ? (
@@ -503,8 +507,6 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Projects"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)]"
-                            autoPlay
-                            autoPlayInterval={5500}
                         >
                             {projects.map((project, index) => (
                                 <Reveal key={project.id} delay={(index % 2) * 0.1}>
@@ -606,7 +608,7 @@ export default function Welcome({
                 <section id="services" className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
                     <Reveal>
                         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</h2>
-                        <span className="mx-auto mt-3 block h-px w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <span className="divider-premium" />
                     </Reveal>
 
                     {services.length > 0 ? (
@@ -614,8 +616,6 @@ export default function Welcome({
                             className="mt-10"
                             ariaLabel="Services"
                             slideClassName="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
-                            autoPlay
-                            autoPlayInterval={5000}
                         >
                             {services.map((service, index) => (
                                 <Reveal key={service.id} delay={(index % 3) * 0.08}>

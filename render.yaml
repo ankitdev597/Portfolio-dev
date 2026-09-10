@@ -149,13 +149,20 @@ envVarGroups:
       - key: REVERB_SCHEME
         value: https
 
-      # Local disk by default (matches the free-tier choice for now).
-      # Render's free web service has NO persistent disk, so uploaded
-      # avatars/resumes/thumbnails/badges are LOST on every redeploy or
-      # restart until this is switched to S3-compatible storage - see the
-      # deploy notes doc for how to wire up Cloudflare R2's free tier
-      # (just add AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_BUCKET /
-      # AWS_ENDPOINT / AWS_DEFAULT_REGION and flip this to "s3" - no code
-      # changes needed, config/filesystems.php already reads these).
+      # Switched to Cloudflare R2 (S3-compatible, free 10GB tier) - Render's
+      # free web service has NO persistent disk, so anything written to
+      # local storage (avatars/resumes/thumbnails/badges) was being LOST on
+      # every redeploy or restart. config/filesystems.php's 'public' disk
+      # already reads all the AWS_* vars below with zero code changes -
+      # this is purely config. The secret values themselves
+      # (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_BUCKET /
+      # AWS_ENDPOINT / AWS_URL) are NOT committed here - set only via the
+      # Render dashboard's Environment tab, same rule as ADMIN_SEED_PASSWORD
+      # above. This value (driver name, not a secret) IS committed so a
+      # future Blueprint sync doesn't silently revert it back to "local".
       - key: PUBLIC_DISK_DRIVER
-        value: local
+        value: s3
+      - key: AWS_DEFAULT_REGION
+        value: auto
+      - key: AWS_USE_PATH_STYLE_ENDPOINT
+        value: "true"
