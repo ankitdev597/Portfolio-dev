@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/*
+ * "Crimson Noir" design tokens, ported from the original Laravel site's
+ * resources/css/app.css. Every color reads from one of these CSS
+ * variables rather than a hard-coded hex, same discipline as before.
+ * Dark-only by design (the original site never had a light mode) - see
+ * html{color-scheme:dark} below.
+ */
+:root {
+    --background: 8 5 5;           /* #080505 - near-black with a whisper of red */
+    --surface: 24 9 9;             /* #180909 - dark red-black charcoal */
+    --surface-elevated: 36 13 13;  /* #240d0d */
+    --primary: 220 38 38;          /* #dc2626 - vivid signature red */
+    --secondary: 127 29 29;        /* #7f1d1d - deep maroon */
+    --accent: 248 113 113;         /* #f87171 - brighter rose, for highlights/glow contrast */
+    --text: 245 240 240;           /* #f5f0f0 - warm soft white */
+    --muted: 168 130 130;          /* #a88282 - red-tinted grey */
+    --border: 255 255 255;
+    --border-opacity: 0.08;
+
+    /* Metallic gold trim, layered on top of the black/red palette for
+     * dividers, hover hairlines, and card-shadow whispers - never a
+     * competing dominant color. */
+    --gold: 212 175 55;            /* #d4af37 */
+}
+
+@theme inline {
+    --color-background: rgb(var(--background));
+    --color-surface: rgb(var(--surface));
+    --color-surface-elevated: rgb(var(--surface-elevated));
+    --color-primary: rgb(var(--primary));
+    --color-secondary: rgb(var(--secondary));
+    --color-accent: rgb(var(--accent));
+    --color-text: rgb(var(--text));
+    --color-muted: rgb(var(--muted));
+    --color-gold: rgb(var(--gold));
+
+    /* System font stack, not a Google Fonts import - no network
+     * dependency at build time (this exact class of fragility is what
+     * broke the previous Laravel deploy's builds), and every OS/browser
+     * already ships a fast, well-hinted sans-serif that reads as
+     * "clean and modern" here. */
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+}
+
+@layer base {
+    * {
+        border-color: rgb(var(--border) / var(--border-opacity));
+    }
+
+    html {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-background text-text antialiased;
+        background-image:
+            radial-gradient(ellipse 70% 45% at 15% -10%, rgb(var(--primary) / 0.28), transparent 60%),
+            radial-gradient(ellipse 60% 40% at 100% 15%, rgb(var(--secondary) / 0.18), transparent 60%),
+            radial-gradient(ellipse 55% 45% at 90% 90%, rgb(var(--accent) / 0.14), transparent 60%),
+            radial-gradient(ellipse 50% 35% at 0% 100%, rgb(var(--primary) / 0.12), transparent 60%);
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+    }
+
+    ::selection {
+        @apply bg-primary/30 text-text;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+@layer components {
+    .glass-panel {
+        @apply bg-surface/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl transition-[box-shadow,border-color] duration-300;
+    }
+
+    .glass-panel:hover {
+        border-color: rgb(var(--primary) / 0.3);
+        box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12),
+            0 2px 24px -8px rgb(var(--gold) / 0.15);
+    }
+
+    /* Thin metallic-gold divider for section headings. */
+    .divider-premium {
+        @apply mx-auto mt-3 block h-px w-16;
+        background-image: linear-gradient(
+            90deg,
+            transparent,
+            rgb(var(--primary) / 0.7),
+            rgb(var(--gold) / 0.9),
+            rgb(var(--primary) / 0.7),
+            transparent
+        );
+    }
+
+    /* Premium gradient text (red -> gold -> red) for display-size headlines only. */
+    .text-premium {
+        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--gold)), rgb(var(--primary)));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    /* Set while CustomCursor is mounted (desktop pointer-fine only). */
+    .cursor-none,
+    .cursor-none * {
+        cursor: none !important;
+    }
+
+    /* Signature text gradient - vivid red -> maroon -> rose. */
+    .text-aurora {
+        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--secondary)), rgb(var(--accent)));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white
+        transition-[filter,box-shadow] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2
+        focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none;
+        background-image: linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary)));
+        box-shadow: 0 12px 30px -10px rgb(var(--primary) / 0.55), inset 0 0 0 1px rgb(var(--gold) / 0);
+        transition: filter 300ms, box-shadow 300ms;
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 16px 36px -10px rgb(var(--primary) / 0.6), inset 0 0 0 1px rgb(var(--gold) / 0.4);
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm
+        font-medium text-text transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2
+        focus-visible:outline-offset-2 focus-visible:outline-accent;
+    }
+}

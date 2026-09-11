@@ -1,7 +1,0 @@
-User-agent: *
-Disallow: /admin
-Disallow: /login
-Disallow: /register
-Disallow: /account
-
-Sitemap: https://portfolio-crm-web.onrender.com/sitemap.xml
