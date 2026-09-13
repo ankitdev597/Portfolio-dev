@@ -1,42 +1,36 @@
-# Ankit Vishwakarma — Portfolio
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A single-page developer portfolio built with Next.js. No backend, no database, no API routes — every section (profile, skills, experience, projects, services, resume, contact) is sourced from typed static data in `data/` and rendered as a fully static, prerendered site.
+## Getting Started
 
-## Stack
-
-- **Framework:** Next.js (App Router, Turbopack)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4
-- **Animation:** GSAP + ScrollTrigger, Motion, Lenis (smooth scroll)
-- **3D:** Three.js, React Three Fiber, Drei
-
-## Getting started
+First, run the development server:
 
 ```bash
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Editing content
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-All site content lives in `data/*.ts` as typed exports — edit those files and the site updates on next build. No CMS, no migrations, no seeders.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- `data/profile.ts` — name, headline, bio, SEO metadata, resume info
-- `data/skills.ts` — skill categories
-- `data/experience.ts` — work history
-- `data/projects.ts` — portfolio projects (title, description, tech, live links)
-- `data/services.ts` — services offered
+## Learn More
 
-## Build
+To learn more about Next.js, take a look at the following resources:
 
-```bash
-npm run build
-```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-Produces a fully static, prerenderable output — no server runtime or environment variables required. Deploys cleanly to Vercel with zero configuration.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## History
+## Deploy on Vercel
 
-This repository previously hosted a Laravel + Inertia.js + React CRM/CMS version of this site. That backend was removed in favor of a static Next.js single-page app; the Laravel code remains recoverable from this repo's git history.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
