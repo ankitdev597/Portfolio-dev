@@ -26,6 +26,9 @@ export interface Project {
   icon: ProjectIconKey;
   liveUrl: string | null;
   githubUrl: string | null;
+  /** A second live link worth surfacing (e.g. a companion admin/author panel). */
+  secondaryUrl?: string;
+  secondaryLabel?: string;
 }
 
 export const projects: Project[] = [
@@ -215,5 +218,18 @@ export const projects: Project[] = [
     icon: "business",
     liveUrl: null,
     githubUrl: null,
+  },
+  {
+    title: "AkatiBird - Business Hub Platform",
+    slug: "akatibird-business-hub-platform",
+    description:
+      "A multilingual business hub platform combining an e-commerce storefront with meeting/appointment scheduling, backed by a companion author panel for managing site content.",
+    featured: false,
+    technologies: ["Next.js", "TypeScript", "Laravel", "MySQL"],
+    icon: "business",
+    liveUrl: "https://akatibird.com/en",
+    githubUrl: null,
+    secondaryUrl: "https://author.akatibird.com/",
+    secondaryLabel: "Author panel",
   },
 ];

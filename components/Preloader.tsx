@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { profile } from "@/data/profile";
+
+const PreloaderScene = dynamic(() => import("@/components/PreloaderScene"), { ssr: false });
 
 // Held on screen for at least this long even if the page loads instantly,
 // so the preloader reads as an intentional brand moment rather than a
 // one-frame flash on a fast connection.
-const MIN_VISIBLE_MS = 700;
+const MIN_VISIBLE_MS = 1100;
 
 /**
  * Full-screen loading screen shown on every hard navigation/refresh.
@@ -56,20 +59,17 @@ export default function Preloader() {
 
   if (!visible) return null;
 
-  const initials = profile.fullName
-    .split(" ")
-    .map((part) => part[0])
-    .join("");
-
   return (
     <div
       ref={containerRef}
       role="status"
       aria-live="polite"
       aria-label="Loading"
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-5 bg-background"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-background"
     >
-      <span className="text-3xl font-bold tracking-wide text-aurora">{initials}</span>
+      <div className="h-40 w-full max-w-md sm:h-52">
+        <PreloaderScene />
+      </div>
       <div className="h-px w-28 overflow-hidden rounded-full bg-white/10">
         <div className="loader-sweep h-full w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent" />
       </div>

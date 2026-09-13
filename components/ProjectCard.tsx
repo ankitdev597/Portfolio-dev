@@ -96,6 +96,17 @@ export default function ProjectCard({ project }: { project: Project }) {
               <span aria-hidden="true">&rarr;</span>
             </a>
           )}
+          {project.secondaryUrl && (
+            <a
+              href={project.secondaryUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-muted transition-colors hover:text-text"
+            >
+              {project.secondaryLabel ?? "View more"}
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          )}
         </div>
       )}
     </div>

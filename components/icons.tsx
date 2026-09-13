@@ -38,5 +38,6 @@ export {
   Zap,
   GraduationCap,
   MapPin,
+  X,
   type LucideIcon,
 } from "lucide-react";
