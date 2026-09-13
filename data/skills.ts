@@ -1,59 +1,83 @@
+export type SkillIconKey =
+  | "code"
+  | "frontend"
+  | "backend"
+  | "database"
+  | "cloud"
+  | "ai"
+  | "creative"
+  | "tools";
+
 export interface SkillCategory {
   name: string;
-  icon: string;
+  icon: SkillIconKey;
   skills: string[];
 }
 
 export const skillCategories: SkillCategory[] = [
   {
+    name: "Languages",
+    icon: "code",
+    skills: ["JavaScript (ES6+)", "TypeScript", "PHP", "SQL", "HTML5", "CSS3", "Bash"],
+  },
+  {
     name: "Frontend",
-    icon: "🧩",
+    icon: "frontend",
     skills: [
       "React.js",
       "Angular",
       "Vue.js",
-      "JavaScript",
-      "TypeScript",
-      "Tailwind CSS",
+      "Next.js",
       "Inertia.js",
+      "Tailwind CSS",
+      "Bootstrap 5",
+      "jQuery",
+      "Alpine.js",
     ],
   },
   {
     name: "Backend",
-    icon: "🧩",
-    skills: [
-      "Laravel",
-      "PHP",
-      "Node.js",
-      "Express.js",
-      "WebSockets",
-      "Redis",
-      "Laravel Reverb",
-    ],
+    icon: "backend",
+    skills: ["Node.js", "Express.js", "Laravel", "RESTful API Design", "WebSockets", "Laravel Reverb"],
   },
   {
-    name: "Database",
-    icon: "🧩",
-    skills: ["MySQL", "MongoDB", "Oracle"],
+    name: "Databases",
+    icon: "database",
+    skills: ["MySQL", "MongoDB", "Oracle Database", "Redis"],
   },
   {
     name: "Cloud & DevOps",
-    icon: "🧩",
-    skills: ["AWS", "EC2", "SES", "SNS", "CI/CD", "Linux", "Nginx", "Apache", "SSL"],
+    icon: "cloud",
+    skills: [
+      "AWS (EC2, SES, SNS)",
+      "CI/CD Pipelines",
+      "Linux Server Administration",
+      "SSH",
+      "Bash Scripting",
+      "Nginx",
+      "Apache",
+      "SSL Configuration",
+    ],
   },
   {
-    name: "AI & LLM",
-    icon: "🧩",
-    skills: ["OpenAI API", "LLM Integration"],
+    name: "AI & LLM Integration",
+    icon: "ai",
+    skills: [
+      "OpenAI API",
+      "Third-Party LLM Integration",
+      "Prompt Engineering",
+      "Cursor",
+      "Claude AI",
+    ],
   },
   {
-    name: "3D & Animation",
-    icon: "🧩",
+    name: "Creative Engineering",
+    icon: "creative",
     skills: ["Three.js", "React Three Fiber", "GSAP", "Motion", "Lenis"],
   },
   {
-    name: "Tools",
-    icon: "🧩",
-    skills: ["Git", "GitHub", "Postman"],
+    name: "Tools & Practices",
+    icon: "tools",
+    skills: ["Git/GitHub", "Postman", "Code Review", "Agile Collaboration", "Mentoring"],
   },
 ];

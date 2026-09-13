@@ -1,58 +1,70 @@
+export type ServiceIconKey =
+  | "fullstack"
+  | "laravel"
+  | "react"
+  | "mern"
+  | "ai"
+  | "api"
+  | "aws"
+  | "cicd"
+  | "server"
+  | "realtime";
+
 export interface Service {
   title: string;
   description: string;
-  icon: string;
+  icon: ServiceIconKey;
 }
 
 export const services: Service[] = [
   {
     title: "Full Stack Development",
     description: "End-to-end web application development from database to UI.",
-    icon: "⚡",
+    icon: "fullstack",
   },
   {
     title: "Laravel Development",
     description: "Robust, scalable backends built on Laravel and PHP.",
-    icon: "⚡",
+    icon: "laravel",
   },
   {
     title: "React Development",
     description: "Modern, interactive frontends built with React and TypeScript.",
-    icon: "⚡",
+    icon: "react",
   },
   {
     title: "MERN Development",
     description: "Full JavaScript-stack applications with MongoDB, Express, React, and Node.js.",
-    icon: "⚡",
+    icon: "mern",
   },
   {
     title: "AI / LLM Integration",
     description: "Integrating OpenAI and other LLMs into production applications.",
-    icon: "⚡",
+    icon: "ai",
   },
   {
     title: "API Development",
     description: "RESTful API architecture and integration.",
-    icon: "⚡",
+    icon: "api",
   },
   {
     title: "AWS Deployment",
     description: "Cloud infrastructure and deployment on AWS (EC2, SES, SNS).",
-    icon: "⚡",
+    icon: "aws",
   },
   {
     title: "CI/CD",
     description: "Automated build, test, and deployment pipelines.",
-    icon: "⚡",
+    icon: "cicd",
   },
   {
     title: "Server Configuration",
     description: "Linux server administration, Nginx/Apache, and SSL setup.",
-    icon: "⚡",
+    icon: "server",
   },
   {
     title: "Real-Time WebSocket Applications",
     description: "Real-time features powered by WebSockets and Laravel Reverb.",
-    icon: "⚡",
+    icon: "realtime",
   },
 ];

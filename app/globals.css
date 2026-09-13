@@ -145,4 +145,19 @@
         font-medium text-text transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent;
     }
+
+    /* Preloader progress sweep - a soft bar of light passing left to right,
+     * looped for as long as the preloader is visible. */
+    .loader-sweep {
+        animation: loader-sweep 1.1s ease-in-out infinite;
+    }
+
+    @keyframes loader-sweep {
+        0% {
+            transform: translateX(-120%);
+        }
+        100% {
+            transform: translateX(320%);
+        }
+    }
 }

@@ -36,7 +36,16 @@ export default function CustomCursor() {
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
-    const ringPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    // Without an initial position both elements sit at their unstyled
+    // (0, 0) top-left corner - effectively invisible - until the first
+    // mousemove event fires a GSAP tween. Seed them at the viewport
+    // center immediately so the cursor is visible the instant it mounts.
+    const initialX = window.innerWidth / 2;
+    const initialY = window.innerHeight / 2;
+    gsap.set(dot, { x: initialX, y: initialY });
+    ring.style.transform = `translate(${initialX}px, ${initialY}px)`;
+
+    const ringPos = { x: initialX, y: initialY };
 
     function handleMove(e: MouseEvent) {
       gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.05, overwrite: true });

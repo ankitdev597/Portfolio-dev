@@ -30,11 +30,25 @@ export default function Experience() {
                       {entry.employmentTypeLabel}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-primary">{entry.companyName}</p>
+                  <p className="mt-1 text-sm text-primary">
+                    {entry.companyName} <span className="text-muted">· {entry.location}</span>
+                  </p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-muted">
                     {formatDate(entry.startDate)} —{" "}
                     {entry.isCurrent ? "Present" : entry.endDate ? formatDate(entry.endDate) : ""}
                   </p>
+
+                  <ul className="mt-4 space-y-2">
+                    {entry.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="flex gap-2.5 text-sm leading-relaxed text-muted"
+                      >
+                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary/70" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </li>
             </Reveal>

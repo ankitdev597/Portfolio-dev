@@ -1,5 +1,6 @@
 import { profile } from "@/data/profile";
 import Reveal from "@/components/Reveal";
+import { MapPin } from "@/components/icons";
 
 export default function About() {
   const initials = profile.fullName
@@ -21,9 +22,12 @@ export default function About() {
           <Reveal>
             <div className="glass-panel mx-auto flex aspect-square w-56 flex-col items-center justify-center gap-3 sm:w-64">
               <span className="text-5xl font-bold text-aurora">{initials}</span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-muted">
-                Photo coming soon
-              </span>
+              {profile.location && (
+                <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-muted">
+                  <MapPin className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+                  {profile.location}
+                </span>
+              )}
             </div>
           </Reveal>
 
@@ -39,6 +43,10 @@ export default function About() {
                 {profile.yearsExperience}+ years experience
               </span>
             </div>
+
+            {profile.availabilityNote && (
+              <p className="mt-4 text-sm text-muted">{profile.availabilityNote}</p>
+            )}
           </Reveal>
         </div>
       </div>

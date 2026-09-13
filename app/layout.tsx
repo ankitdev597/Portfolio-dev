@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { profile, seo } from "@/data/profile";
+import Preloader from "@/components/Preloader";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import CookieConsent from "@/components/CookieConsent";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
+        <Preloader />
         <SmoothScroll />
         <CustomCursor />
         <Navbar />

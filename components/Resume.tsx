@@ -15,7 +15,10 @@ export default function Resume() {
         <Reveal delay={0.1}>
           <div className="glass-panel mt-14 flex flex-col items-center gap-5 p-10 text-center">
             <h3 className="text-2xl font-semibold text-text">{resume.roleTitle}</h3>
-            <p className="max-w-md text-sm text-muted">This is my entire experience Resume.</p>
+            <p className="max-w-md text-sm text-muted">
+              The full picture: roles, responsibilities, and every project listed on this page -
+              in one PDF you can share with your team.
+            </p>
             <a
               href={resume.path}
               download={resume.fileName}
