@@ -1,13 +1,9 @@
+import Image from "next/image";
 import { profile } from "@/data/profile";
 import Reveal from "@/components/Reveal";
 import { MapPin } from "@/components/icons";
 
 export default function About() {
-  const initials = profile.fullName
-    .split(" ")
-    .map((part) => part[0])
-    .join("");
-
   return (
     <section id="about" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -20,10 +16,17 @@ export default function About() {
 
         <div className="mt-14 grid items-center gap-12 md:grid-cols-[minmax(0,280px)_1fr]">
           <Reveal>
-            <div className="glass-panel mx-auto flex aspect-square w-56 flex-col items-center justify-center gap-3 sm:w-64">
-              <span className="text-5xl font-bold text-aurora">{initials}</span>
+            <div className="glass-panel relative mx-auto flex aspect-square w-56 flex-col items-center justify-end overflow-hidden sm:w-64">
+              <Image
+                src="/images/profile-photo.jpg"
+                alt={profile.fullName}
+                fill
+                sizes="(min-width: 640px) 256px, 224px"
+                className="object-cover"
+                priority
+              />
               {profile.location && (
-                <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-muted">
+                <span className="relative z-10 mb-3 flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm">
                   <MapPin className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
                   {profile.location}
                 </span>

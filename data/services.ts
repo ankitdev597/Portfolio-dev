@@ -8,12 +8,20 @@ export type ServiceIconKey =
   | "aws"
   | "cicd"
   | "server"
-  | "realtime";
+  | "realtime"
+  | "database"
+  | "automation";
+
+/** Services with a dedicated animated 3D visual instead of a flat icon badge. */
+export type ServiceVisual = "database" | "automation";
 
 export interface Service {
   title: string;
   description: string;
   icon: ServiceIconKey;
+  visual?: ServiceVisual;
+  /** Short technology/technique chips shown under the description. */
+  techBadges?: string[];
 }
 
 export const services: Service[] = [
@@ -21,6 +29,22 @@ export const services: Service[] = [
     title: "Full Stack Development",
     description: "End-to-end web application development from database to UI.",
     icon: "fullstack",
+  },
+  {
+    title: "Database Design & Architecture",
+    description:
+      "Relational and document schema design, indexing, and query optimization - modeling data so it stays fast and consistent as the product grows.",
+    icon: "database",
+    visual: "database",
+    techBadges: ["MongoDB", "MySQL", "PostgreSQL"],
+  },
+  {
+    title: "Workflow & Process Automation",
+    description:
+      "Automating repetitive engineering and business workflows - background jobs, notifications, and third-party integrations - so teams ship with fewer manual steps.",
+    icon: "automation",
+    visual: "automation",
+    techBadges: ["Queues", "Webhooks", "Scheduled Jobs"],
   },
   {
     title: "Laravel Development",
