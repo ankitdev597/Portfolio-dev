@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { toPng } from "html-to-image";
-import { Download, Check } from "lucide-react";
+import { toBlob, toPng } from "html-to-image";
+import { Download, Check, Share2 } from "lucide-react";
 import { profile, socialLinks, resume } from "@/data/profile";
 import ProfilePhotoModal from "@/components/ProfilePhotoModal";
 import { MapPin } from "@/components/icons";
 
 const CARD_FILE = "Ankit_Vishwakarma_Profile_Card.png";
+const FALLBACK_SITE = "https://ankitvishwakarma.dev";
 
 const HIGHLIGHTS = [
   {
@@ -27,54 +28,177 @@ const HIGHLIGHTS = [
   },
 ] as const;
 
+function siteUrl() {
+  const env = (process.env.NEXT_PUBLIC_SITE_URL ?? FALLBACK_SITE).replace(/\/$/, "");
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    return window.location.origin;
+  }
+  return env;
+}
+
+function shareText() {
+  const url = siteUrl();
+  return [
+    `${profile.fullName}`,
+    `${profile.headline}`,
+    `Phone: ${profile.phone}`,
+    `Email: ${profile.email}`,
+    `Portfolio: ${url}`,
+    "",
+    "Immediate Joiner — Full Stack · AI · AWS",
+  ].join("\n");
+}
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
+
 /**
- * Single About profile card — on-page UX + hidden PNG export for sharing.
- * No second visible “share card” (that felt like a duplicate).
+ * Single About profile card — download PNG + WhatsApp / native share.
  */
 export default function AboutCard() {
   const exportRef = useRef<HTMLDivElement>(null);
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState<"download" | "whatsapp" | "share" | null>(null);
+  const [done, setDone] = useState<"download" | "share" | null>(null);
 
   const github = socialLinks.find((l) => l.platform === "github");
   const linkedin = socialLinks.find((l) => l.platform === "linkedin");
 
-  const downloadCard = useCallback(async () => {
+  const makeCardBlob = useCallback(async () => {
     const node = exportRef.current;
-    if (!node || busy) return;
+    if (!node) throw new Error("Card not ready");
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
 
-    setBusy(true);
-    setDone(false);
+    let blob = await toBlob(node, {
+      cacheBust: true,
+      pixelRatio: 2,
+      backgroundColor: "#0E0C0E",
+    });
 
-    try {
-      await new Promise((r) => requestAnimationFrame(() => r(null)));
-
+    if (!blob) {
       const dataUrl = await toPng(node, {
         cacheBust: true,
         pixelRatio: 2,
         backgroundColor: "#0E0C0E",
       });
+      const res = await fetch(dataUrl);
+      blob = await res.blob();
+    }
 
+    return blob;
+  }, []);
+
+  const downloadCard = useCallback(async () => {
+    if (busy) return;
+    setBusy("download");
+    setDone(null);
+    try {
+      const blob = await makeCardBlob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.download = CARD_FILE;
-      link.href = dataUrl;
+      link.href = url;
       link.click();
-      setDone(true);
-      window.setTimeout(() => setDone(false), 2500);
+      URL.revokeObjectURL(url);
+      setDone("download");
+      window.setTimeout(() => setDone(null), 2500);
     } catch {
-      try {
-        const dataUrl = await toPng(exportRef.current!, {
-          pixelRatio: 2,
-          cacheBust: true,
-        });
-        window.open(dataUrl, "_blank");
-      } catch {
-        /* ignore */
-      }
+      /* ignore */
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
-  }, [busy]);
+  }, [busy, makeCardBlob]);
+
+  const shareNative = useCallback(async () => {
+    if (busy) return;
+    setBusy("share");
+    setDone(null);
+    try {
+      const blob = await makeCardBlob();
+      const file = new File([blob], CARD_FILE, { type: "image/png" });
+      const text = shareText();
+
+      if (typeof navigator !== "undefined" && navigator.share) {
+        const payload: ShareData = { title: profile.fullName, text, url: siteUrl() };
+        if (navigator.canShare?.({ files: [file] })) {
+          payload.files = [file];
+        }
+        await navigator.share(payload);
+        setDone("share");
+        window.setTimeout(() => setDone(null), 2500);
+        return;
+      }
+
+      await navigator.clipboard?.writeText(text);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = CARD_FILE;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      setDone("share");
+      window.setTimeout(() => setDone(null), 2500);
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+    } finally {
+      setBusy(null);
+    }
+  }, [busy, makeCardBlob]);
+
+  const shareWhatsApp = useCallback(async () => {
+    if (busy) return;
+    setBusy("whatsapp");
+    setDone(null);
+    try {
+      const blob = await makeCardBlob();
+      const file = new File([blob], CARD_FILE, { type: "image/png" });
+      const text = shareText();
+
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.share &&
+        navigator.canShare?.({ files: [file] })
+      ) {
+        await navigator.share({
+          files: [file],
+          title: profile.fullName,
+          text,
+        });
+        setDone("share");
+        window.setTimeout(() => setDone(null), 2500);
+        return;
+      }
+
+      // Desktop: download PNG + open WhatsApp with contact text
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = CARD_FILE;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(text)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+      setDone("share");
+      window.setTimeout(() => setDone(null), 2500);
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(shareText())}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } finally {
+      setBusy(null);
+    }
+  }, [busy, makeCardBlob]);
 
   return (
     <>
@@ -117,24 +241,59 @@ export default function AboutCard() {
               >
                 Download resume
               </a>
-              <button
-                type="button"
-                onClick={downloadCard}
-                disabled={busy}
-                className="btn-secondary inline-flex w-full items-center justify-center gap-2 !py-2.5 text-xs disabled:opacity-60"
-              >
-                {done ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                    Card saved
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-3.5 w-3.5" aria-hidden="true" />
-                    {busy ? "Preparing…" : "Download card image"}
-                  </>
-                )}
-              </button>
+
+              <div className="soft-hairline mt-1 border-t pt-3">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">
+                  Share card
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={shareWhatsApp}
+                    disabled={Boolean(busy)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                    {busy === "whatsapp" ? "Opening…" : "Share on WhatsApp"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={shareNative}
+                    disabled={Boolean(busy)}
+                    className="btn-secondary inline-flex w-full items-center justify-center gap-2 !py-2.5 text-xs disabled:opacity-60"
+                  >
+                    {done === "share" ? (
+                      <>
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        Shared
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                        {busy === "share" ? "Preparing…" : "Share…"}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadCard}
+                    disabled={Boolean(busy)}
+                    className="btn-secondary inline-flex w-full items-center justify-center gap-2 !py-2.5 text-xs disabled:opacity-60"
+                  >
+                    {done === "download" ? (
+                      <>
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        Card saved
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                        {busy === "download" ? "Preparing…" : "Download PNG"}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -214,7 +373,7 @@ export default function AboutCard() {
         </div>
       </article>
 
-      {/* Hidden export-only card — not shown on page (avoids double UI) */}
+      {/* Hidden export card — not shown on page */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed -left-[9999px] top-0 overflow-hidden"
