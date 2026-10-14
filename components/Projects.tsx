@@ -1,8 +1,11 @@
+"use client";
+
 import { projects } from "@/data/projects";
 import Reveal from "@/components/Reveal";
 import Section from "@/components/Section";
 import SectionHeading from "@/components/SectionHeading";
 import ProjectCard from "@/components/ProjectCard";
+import LoadMoreGrid from "@/components/LoadMoreGrid";
 
 export default function Projects() {
   const featured = projects.filter((p) => p.featured);
@@ -22,7 +25,7 @@ export default function Projects() {
               Featured
             </h3>
           </Reveal>
-          <div className="grid items-stretch gap-5 sm:grid-cols-2">
+          <div className="section-card-grid-2 !mt-0">
             {featured.map((project, i) => (
               <Reveal key={project.slug} delay={(i % 2) * 0.05} className="h-full">
                 <ProjectCard project={project} />
@@ -41,13 +44,19 @@ export default function Projects() {
               </h3>
             </Reveal>
           )}
-          <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((project, i) => (
-              <Reveal key={project.slug} delay={(i % 3) * 0.05} className="h-full">
+          <LoadMoreGrid
+            items={rest}
+            initialCount={6}
+            step={6}
+            columns={2}
+            getKey={(p) => p.slug}
+            moreLabel="Load more projects"
+            renderItem={(project, i) => (
+              <Reveal delay={(i % 2) * 0.05} className="h-full">
                 <ProjectCard project={project} />
               </Reveal>
-            ))}
-          </div>
+            )}
+          />
         </div>
       )}
     </Section>

@@ -12,13 +12,18 @@ import { getLenisInstance } from "@/lib/lenis-singleton";
 const GITHUB_ICON_PATH =
   "M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.3-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z";
 
+interface ProfilePhotoModalProps {
+  /** `card` = fills about profile card column; default keeps legacy square */
+  variant?: "default" | "card";
+}
+
 /**
  * The About-section headshot, clickable to open a centered modal with a
  * larger view plus a direct link out to the GitHub profile. Kept as one
  * component (rather than a photo + a separately-wired modal) so the
  * trigger and its dialog can't drift out of sync.
  */
-export default function ProfilePhotoModal() {
+export default function ProfilePhotoModal({ variant = "default" }: ProfilePhotoModalProps) {
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   // The dialog is portaled to document.body (see the render below) so it
@@ -55,6 +60,8 @@ export default function ProfilePhotoModal() {
 
   const github = socialLinks.find((link) => link.platform === "github");
 
+  const isCard = variant === "card";
+
   return (
     <>
       <button
@@ -62,17 +69,26 @@ export default function ProfilePhotoModal() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-label={`View larger photo of ${profile.fullName}`}
-        className="glass-panel group relative mx-auto flex aspect-square w-56 flex-col items-center justify-end overflow-hidden sm:w-64"
+        className={
+          isCard
+            ? "group relative mx-auto aspect-[4/5] w-full max-w-[240px] overflow-hidden rounded-2xl border border-[rgb(var(--border)/0.85)] bg-[rgb(var(--surface-elevated))] shadow-[0_18px_40px_-28px_rgb(var(--primary)/0.45)] lg:max-w-none"
+            : "glass-panel group relative mx-auto flex aspect-square w-56 flex-col items-center justify-end overflow-hidden sm:w-64"
+        }
       >
         <Image
           src="/images/profile-photo.jpg"
           alt={profile.fullName}
           fill
-          sizes="(min-width: 640px) 256px, 224px"
+          sizes={isCard ? "(min-width: 1024px) 240px, 240px" : "(min-width: 640px) 256px, 224px"}
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           priority
         />
-        {profile.location && (
+        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 pb-3 pt-10 text-left">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
+            Tap to enlarge
+          </span>
+        </span>
+        {!isCard && profile.location && (
           <span className="relative z-10 mb-3 flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm">
             <MapPin className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
             {profile.location}

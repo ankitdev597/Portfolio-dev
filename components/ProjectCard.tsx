@@ -44,9 +44,11 @@ const PROJECT_ICONS: Record<ProjectIconKey, LucideIcon> = {
 export default function ProjectCard({ project }: { project: Project }) {
   const Icon = PROJECT_ICONS[project.icon];
   const hasLinks = Boolean(project.liveUrl || project.githubUrl || project.secondaryUrl);
+  const techs = project.technologies.slice(0, 6);
+  const extra = project.technologies.length - techs.length;
 
   return (
-    <article className="glass-panel card-depth group flex h-full min-h-[22rem] flex-col p-5 sm:min-h-[24rem] sm:p-6">
+    <article className="glass-panel card-depth group flex h-full min-h-[24rem] flex-col p-5 sm:min-h-[26rem] sm:p-6">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 text-gold transition-transform duration-300 group-hover:scale-105">
           <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
@@ -56,15 +58,16 @@ export default function ProjectCard({ project }: { project: Project }) {
             <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug text-text sm:min-h-[3rem] sm:text-lg">
               {project.title}
             </h3>
-            {project.featured ? (
-              <span className="w-fit shrink-0 rounded-full bg-gradient-to-r from-primary to-secondary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                Featured
-              </span>
-            ) : (
-              <span className="invisible w-fit shrink-0 px-2.5 py-1 text-[10px]" aria-hidden="true">
-                Featured
-              </span>
-            )}
+            <span
+              className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                project.featured
+                  ? "bg-gradient-to-r from-primary to-secondary text-white"
+                  : "invisible"
+              }`}
+              aria-hidden={!project.featured}
+            >
+              Featured
+            </span>
           </div>
         </div>
       </div>
@@ -74,15 +77,13 @@ export default function ProjectCard({ project }: { project: Project }) {
       </p>
 
       <div className="mt-5 flex min-h-[3.5rem] flex-wrap content-start gap-1.5">
-        {project.technologies.slice(0, 6).map((tech) => (
+        {techs.map((tech) => (
           <span key={tech} className="tech-chip">
             <BrandIcon name={tech} className="h-3.5 w-3.5 shrink-0" />
             {tech}
           </span>
         ))}
-        {project.technologies.length > 6 && (
-          <span className="tech-chip text-muted">+{project.technologies.length - 6}</span>
-        )}
+        {extra > 0 && <span className="tech-chip text-muted">+{extra}</span>}
       </div>
 
       <div className="soft-hairline mt-auto flex min-h-[2.5rem] items-center gap-4 border-t pt-4 text-xs font-medium">
