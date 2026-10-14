@@ -1,5 +1,6 @@
 import { profile, socialLinks } from "@/data/profile";
 import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
 
 const ICONS: Record<string, string> = {
   github: "M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.3-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z",
@@ -11,26 +12,38 @@ export default function Contact() {
   return (
     <section id="contact" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-3xl text-center">
-        <Reveal>
-          <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">Contact</h2>
-          <span className="divider-premium" />
-        </Reveal>
+        <SectionHeading
+          eyebrow="Contact"
+          title="Let's build something together."
+          description="Prefer a quick call or a clear email — either way, you'll reach me directly."
+        />
 
         <Reveal delay={0.1}>
-          <p className="mt-8 text-3xl font-bold text-text sm:text-4xl">
-            Let&apos;s build something together.
-          </p>
+          <a
+            href={profile.phoneHref}
+            className="mt-8 inline-block text-2xl font-semibold tracking-tight text-gold transition-colors hover:text-primary sm:text-3xl"
+            aria-label={`Call ${profile.phone}`}
+          >
+            {profile.phone}
+          </a>
 
           <a
             href={`mailto:${profile.email}`}
-            className="mt-4 inline-block text-lg text-gold transition-colors hover:text-primary"
+            className="mt-3 block text-base text-muted transition-colors hover:text-gold sm:text-lg"
           >
             {profile.email}
           </a>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href={`mailto:${profile.email}`} className="btn-primary">
-              Get in touch
+            <a
+              href={profile.phoneHref}
+              className="btn-primary"
+              aria-label={`Call ${profile.phone}`}
+            >
+              Call Now
+            </a>
+            <a href={`mailto:${profile.email}`} className="btn-secondary">
+              Email Me
             </a>
 
             {socialLinks.map((link) => (

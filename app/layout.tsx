@@ -74,6 +74,7 @@ const personJsonLd = {
   jobTitle: profile.headline,
   description: profile.shortBio,
   email: `mailto:${profile.email}`,
+  telephone: profile.phone,
   url: siteUrl,
   image: `${siteUrl}${ogImagePath}`,
   sameAs: socialLinks.map((link) => link.url),

@@ -142,9 +142,13 @@ export default function Hero() {
             <button type="button" onClick={() => scrollToSection("projects")} className="btn-primary">
               Explore My Work
             </button>
-            <button type="button" onClick={() => scrollToSection("contact")} className="btn-secondary">
+            <a
+              href={profile.phoneHref}
+              className="btn-secondary"
+              aria-label={`Call ${profile.phone}`}
+            >
               Contact Me
-            </button>
+            </a>
           </div>
         </div>
       </div>

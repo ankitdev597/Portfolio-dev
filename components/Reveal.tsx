@@ -40,14 +40,14 @@ export default function Reveal({
       return;
     }
 
-    const safeDelay = Math.min(Math.max(delay, 0), 0.14);
+    const safeDelay = Math.min(Math.max(delay, 0), 0.18);
     let completed = false;
     let failSafe = 0;
     let trigger: ScrollTrigger | undefined;
 
     const ctx = gsap.context(() => {
       const show = () => {
-        gsap.set(el, { opacity: 1, y: 0, clearProps: "transform" });
+        gsap.set(el, { opacity: 1, y: 0, scale: 1, filter: "none", clearProps: "transform,filter" });
       };
 
       const reveal = () => {
@@ -57,10 +57,12 @@ export default function Reveal({
         gsap.to(el, {
           opacity: 1,
           y: 0,
-          duration: 0.68,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.85,
           delay: safeDelay,
-          ease: "power2.out",
-          clearProps: "transform",
+          ease: "power3.out",
+          clearProps: "transform,filter",
           overwrite: true,
         });
       };
@@ -69,10 +71,10 @@ export default function Reveal({
         if (completed) return;
         completed = true;
         show();
-      }, 3000);
+      }, 3200);
 
       const inView = el.getBoundingClientRect().top < window.innerHeight * 0.94;
-      gsap.set(el, { opacity: 0, y });
+      gsap.set(el, { opacity: 0, y, scale: 0.985, filter: "blur(4px)" });
 
       if (inView) {
         // Slight delay so hero timeline owns the first paint.
@@ -82,7 +84,7 @@ export default function Reveal({
 
       trigger = ScrollTrigger.create({
         trigger: el,
-        start: "top 90%",
+        start: "top 92%",
         once: true,
         onEnter: reveal,
       });

@@ -14,6 +14,10 @@ export interface Profile {
   availability: "available" | "unavailable";
   availabilityNote: string;
   email: string;
+  /** Display label, e.g. +91 8112656226 */
+  phone: string;
+  /** tel: URI for click-to-call */
+  phoneHref: string;
   location: string | null;
 }
 
@@ -28,6 +32,8 @@ export const profile: Profile = {
   availabilityNote:
     "Immediate Joiner — currently serving notice (last working day 10 Nov 2026); early release available.",
   email: "av841344@gmail.com",
+  phone: "+91 8112656226",
+  phoneHref: "tel:+918112656226",
   location: "Pratapgarh, Uttar Pradesh, India",
 };
 

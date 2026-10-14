@@ -6,6 +6,8 @@ import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { profile, socialLinks } from "@/data/profile";
 import { MapPin, X } from "@/components/icons";
+import { unlockPageScroll } from "@/lib/unlock-scroll";
+import { getLenisInstance } from "@/lib/lenis-singleton";
 
 const GITHUB_ICON_PATH =
   "M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.3-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z";
@@ -40,14 +42,14 @@ export default function ProfilePhotoModal() {
       if (e.key === "Escape") setOpen(false);
     }
 
-    // Lock background scroll while the dialog is open, restored on close/unmount.
-    const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    getLenisInstance()?.stop();
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.documentElement.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+      unlockPageScroll();
     };
   }, [open]);
 

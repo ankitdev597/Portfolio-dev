@@ -1,17 +1,16 @@
 import { experience } from "@/data/experience";
 import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
 import { formatMonthYear } from "@/lib/format-date";
 
 export default function Experience() {
   return (
     <section id="experience" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <Reveal>
-          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-gold">
-            Experience
-          </h2>
-          <span className="divider-premium" />
-        </Reveal>
+        <SectionHeading
+          eyebrow="Experience"
+          description="Roles and impact, told with the same care as the product work — timelines, ownership, and outcomes that matter."
+        />
 
         <ol className="soft-hairline relative mt-14 space-y-8 border-l pl-8">
           {experience.map((entry, i) => (
@@ -19,7 +18,7 @@ export default function Experience() {
               <span className="absolute -left-[2.35rem] top-1.5 h-3 w-3 rounded-full border-2 border-background bg-gold shadow-[0_0_0_4px_rgb(var(--gold)/0.2)]" />
 
               <Reveal delay={i * 0.06}>
-                <div className="glass-panel card-depth p-5 sm:p-6">
+                <article className="glass-panel card-depth p-5 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-lg font-semibold text-text">{entry.roleTitle}</h3>
                     <span className="tech-chip !px-3 text-[10px] font-semibold uppercase tracking-wide text-muted">
@@ -49,7 +48,7 @@ export default function Experience() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </article>
               </Reveal>
             </li>
           ))}

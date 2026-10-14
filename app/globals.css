@@ -2,32 +2,34 @@
 
 /*
  * Crimson Noir + Warm Gold
- * Dark: graphite / plum with antique brass
+ * Dark: deep graphite with lifted surfaces + antique brass
  * Light: ivory parchment with richer gold
  */
 :root,
 [data-theme="dark"] {
-    --background: 8 8 10;            /* #08080A */
-    --surface: 18 16 18;             /* #121012 */
-    --surface-elevated: 28 22 26;    /* #1C161A */
-    --primary: 180 52 62;            /* #B4343E */
-    --secondary: 120 38 46;          /* #78262E */
-    --accent: 196 162 110;           /* #C4A26E gold */
-    --text: 232 228 222;             /* #E8E4DE */
-    --muted: 140 132 124;
-    --border: 52 42 48;
-    --gold: 196 162 110;
+    --background: 6 6 9;             /* #060609 */
+    --surface: 16 14 17;             /* #100E11 */
+    --surface-elevated: 30 24 28;    /* #1E181C */
+    --primary: 196 58 68;            /* #C43A44 */
+    --secondary: 128 40 48;          /* #802830 */
+    --accent: 210 176 118;           /* #D2B076 brighter gold */
+    --text: 242 236 228;             /* #F2ECE4 */
+    --muted: 156 146 136;
+    --border: 58 46 52;
+    --gold: 210 176 118;
     --chip-bg: 255 255 255;
-    --chip-bg-a: 0.05;
-    --chip-border-a: 0.1;
+    --chip-bg-a: 0.06;
+    --chip-border-a: 0.12;
     --hover-fill: 255 255 255;
-    --hover-fill-a: 0.06;
+    --hover-fill-a: 0.07;
     --hairline: 255 255 255;
-    --hairline-a: 0.08;
+    --hairline-a: 0.1;
     --overlay: 0 0 0;
-    --card-shadow: 0 18px 42px -28px rgb(196 162 110 / 0.22);
-    --glow-primary: 0.08;
-    --glow-gold: 0.07;
+    --card-shadow: 0 22px 48px -26px rgb(210 176 118 / 0.28);
+    --glow-primary: 0.11;
+    --glow-gold: 0.09;
+    --nav-bg: 6 6 9;
+    --footer-glow: 0.07;
 }
 
 [data-theme="light"] {
@@ -52,6 +54,8 @@
     --card-shadow: 0 16px 36px -22px rgb(168 124 62 / 0.28);
     --glow-primary: 0.06;
     --glow-gold: 0.1;
+    --nav-bg: 250 246 240;
+    --footer-glow: 0.08;
 }
 
 @theme inline {
@@ -64,6 +68,7 @@
     --color-text: rgb(var(--text));
     --color-muted: rgb(var(--muted));
     --color-gold: rgb(var(--gold));
+    --color-border: rgb(var(--border));
 
     --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
         Arial, sans-serif;
@@ -91,13 +96,15 @@
         @apply bg-background text-text antialiased;
         max-width: 100%;
         overflow-x: clip;
+        overscroll-behavior-y: none;
+        -webkit-tap-highlight-color: transparent;
         background-image:
             radial-gradient(ellipse 55% 34% at 8% -4%, rgb(var(--primary) / var(--glow-primary)), transparent 58%),
             radial-gradient(ellipse 48% 30% at 100% 6%, rgb(var(--gold) / var(--glow-gold)), transparent 52%),
             radial-gradient(ellipse 42% 32% at 92% 96%, rgb(var(--primary) / calc(var(--glow-primary) * 0.7)), transparent 55%);
         background-attachment: scroll;
         background-repeat: no-repeat;
-        transition: background-color 280ms ease, color 280ms ease;
+        transition: background-color 320ms ease, color 320ms ease;
     }
 
     @media (min-width: 1024px) {
@@ -133,37 +140,105 @@
         .hero-scroll-cue {
             animation: none !important;
         }
+
+        .glass-panel::after,
+        .card-depth:hover {
+            transform: none !important;
+            opacity: 0 !important;
+        }
     }
 }
 
 @layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+    }
+
     .glass-panel {
-        @apply rounded-2xl backdrop-blur-xl transition-[box-shadow,border-color,transform,background-color] duration-300;
-        background-color: rgb(var(--surface) / 0.88);
-        border: 1px solid rgb(var(--border) / 0.85);
-        box-shadow: 0 1px 0 0 rgb(var(--gold) / 0.06);
+        @apply relative rounded-2xl backdrop-blur-xl;
+        background-color: rgb(var(--surface) / 0.9);
+        border: 1px solid rgb(var(--border) / 0.9);
+        box-shadow:
+            0 1px 0 0 rgb(var(--gold) / 0.08),
+            0 18px 40px -32px rgb(var(--overlay) / 0.45);
+        transition:
+            box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+            border-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+            transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+            background-color 420ms ease;
+        isolation: isolate;
+    }
+
+    /* Soft gold sweep on hover — decorative only */
+    .glass-panel::after {
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(
+            115deg,
+            transparent 30%,
+            rgb(var(--gold) / 0.08) 48%,
+            transparent 62%
+        );
+        transform: translateX(-120%);
+        opacity: 0;
+        transition:
+            transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 400ms ease;
+        z-index: -1;
     }
 
     .card-depth {
-        transform: perspective(900px) translateZ(0);
+        transform: perspective(1000px) translateZ(0) translateY(0);
         transform-style: preserve-3d;
         will-change: transform;
+    }
+
+    /* Equal-height grid cells when Reveal wraps a card */
+    .items-stretch > [class*="h-full"],
+    .items-stretch > .h-full {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .items-stretch > .h-full > .glass-panel,
+    .items-stretch > [class*="h-full"] > .glass-panel {
+        flex: 1 1 auto;
+        width: 100%;
     }
 
     @media (hover: hover) and (pointer: fine) {
         .glass-panel:hover {
             border-color: rgb(var(--gold) / 0.55);
-            box-shadow: var(--card-shadow), 0 0 0 1px rgb(var(--gold) / 0.12);
+            box-shadow: var(--card-shadow), 0 0 0 1px rgb(var(--gold) / 0.14);
+            background-color: rgb(var(--surface-elevated) / 0.92);
+        }
+
+        .glass-panel:hover::after {
+            transform: translateX(120%);
+            opacity: 1;
         }
 
         .card-depth:hover {
-            transform: perspective(900px) rotateX(1.2deg) translateY(-3px);
-            border-color: rgb(var(--gold) / 0.65);
-            box-shadow: var(--card-shadow), 0 0 0 1px rgb(var(--gold) / 0.16);
+            transform: perspective(1000px) rotateX(1.4deg) translateY(-5px) scale(1.012);
+            border-color: rgb(var(--gold) / 0.7);
+            box-shadow:
+                var(--card-shadow),
+                0 0 0 1px rgb(var(--gold) / 0.18),
+                0 28px 56px -36px rgb(var(--primary) / 0.35);
         }
 
         .btn-primary:hover {
             box-shadow: 0 12px 28px -12px rgb(var(--gold) / 0.45), inset 0 0 0 1px rgb(var(--gold) / 0.28);
+            filter: brightness(1.06);
+        }
+
+        .tech-chip:hover {
+            border-color: rgb(var(--gold) / 0.45);
+            background-color: rgb(var(--gold) / 0.12);
         }
     }
 
@@ -172,6 +247,10 @@
         .card-depth:hover {
             transform: none;
             will-change: auto;
+        }
+
+        .glass-panel::after {
+            display: none;
         }
     }
 
@@ -208,19 +287,30 @@
 
     .btn-primary {
         @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white
-        transition-[filter,box-shadow] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2
+        focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none;
         background-image: linear-gradient(145deg, rgb(var(--primary)), rgb(var(--secondary)));
-        box-shadow: 0 10px 24px -12px rgb(var(--primary) / 0.35), 0 0 0 1px rgb(var(--gold) / 0.18);
-        transition: filter 300ms, box-shadow 300ms;
+        box-shadow: 0 10px 24px -12px rgb(var(--primary) / 0.4), 0 0 0 1px rgb(var(--gold) / 0.2);
+        transition: filter 300ms ease, box-shadow 300ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
     }
 
     .btn-secondary {
         @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm
-        font-medium text-text transition-colors focus-visible:outline focus-visible:outline-2
+        font-medium text-text focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent;
         border: 1px solid rgb(var(--border));
         background-color: rgb(var(--surface-elevated) / 0.7);
+        transition: color 280ms ease, background-color 280ms ease, border-color 280ms ease, transform 280ms ease;
     }
 
     .btn-secondary:hover {
@@ -229,16 +319,18 @@
     }
 
     .icon-btn {
-        @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-text transition-colors
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-text
         focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
         border: 1px solid rgb(var(--border) / 0.9);
-        background-color: rgb(var(--surface) / 0.7);
+        background-color: rgb(var(--surface) / 0.75);
         color: rgb(var(--gold));
+        transition: background-color 280ms ease, border-color 280ms ease, transform 280ms ease, box-shadow 280ms ease;
     }
 
     .icon-btn:hover {
         background-color: rgb(var(--hover-fill) / var(--hover-fill-a));
         border-color: rgb(var(--gold) / 0.5);
+        box-shadow: 0 0 0 1px rgb(var(--gold) / 0.12);
     }
 
     .skip-link {
@@ -291,6 +383,7 @@
         @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] text-text;
         border: 1px solid rgb(var(--chip-bg) / var(--chip-border-a));
         background-color: rgb(var(--chip-bg) / var(--chip-bg-a));
+        transition: border-color 280ms ease, background-color 280ms ease;
     }
 
     .soft-hairline {
@@ -298,12 +391,30 @@
     }
 
     .nav-link {
-        @apply rounded-full px-3 py-2 text-sm text-muted transition-colors;
+        @apply relative rounded-full px-3 py-2 text-sm text-muted;
+        transition: color 260ms ease, background-color 260ms ease;
     }
 
     .nav-link:hover {
         color: rgb(var(--text));
         background-color: rgb(var(--hover-fill) / var(--hover-fill-a));
+    }
+
+    .nav-link-active {
+        color: rgb(var(--gold)) !important;
+        background-color: rgb(var(--gold) / 0.1);
+    }
+
+    .nav-link-active::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0.2rem;
+        width: 1rem;
+        height: 2px;
+        border-radius: 9999px;
+        background: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--gold)));
+        transform: translateX(-50%);
     }
 
     .service-visual-frame {
@@ -330,9 +441,42 @@
     }
 
     .site-nav-scrolled {
-        background-color: rgb(var(--background) / 0.82);
-        backdrop-filter: blur(16px);
-        box-shadow: 0 1px 0 0 rgb(var(--gold) / 0.18);
+        background-color: rgb(var(--nav-bg) / 0.78);
+        backdrop-filter: blur(18px) saturate(1.2);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        box-shadow:
+            0 1px 0 0 rgb(var(--gold) / 0.2),
+            0 12px 32px -24px rgb(var(--overlay) / 0.55);
+    }
+
+    [data-theme="dark"] .site-nav-scrolled {
+        background-color: rgb(var(--nav-bg) / 0.72);
+        box-shadow:
+            0 1px 0 0 rgb(var(--gold) / 0.22),
+            0 16px 40px -22px rgb(0 0 0 / 0.75);
+    }
+
+    .site-footer {
+        position: relative;
+        border-top: 1px solid rgb(var(--hairline) / var(--hairline-a));
+        background:
+            radial-gradient(ellipse 70% 80% at 50% 0%, rgb(var(--gold) / var(--footer-glow)), transparent 60%),
+            rgb(var(--surface) / 0.55);
+    }
+
+    [data-theme="dark"] .site-footer {
+        background:
+            radial-gradient(ellipse 70% 90% at 50% 0%, rgb(var(--gold) / 0.08), transparent 55%),
+            radial-gradient(ellipse 50% 60% at 90% 100%, rgb(var(--primary) / 0.08), transparent 50%),
+            rgb(var(--surface) / 0.85);
+    }
+
+    .footer-link {
+        @apply text-sm text-muted transition-colors duration-300;
+    }
+
+    .footer-link:hover {
+        color: rgb(var(--gold));
     }
 
     @media (prefers-reduced-motion: no-preference) {

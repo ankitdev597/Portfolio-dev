@@ -1,17 +1,16 @@
 import { profile } from "@/data/profile";
 import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
 import ProfilePhotoModal from "@/components/ProfilePhotoModal";
 
 export default function About() {
   return (
     <section id="about" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-gold">
-            About
-          </h2>
-          <span className="divider-premium" />
-        </Reveal>
+        <SectionHeading
+          eyebrow="About"
+          description="Senior engineering with product sense — shipping full-stack systems, AI features, and cloud delivery for real clients."
+        />
 
         <div className="mt-14 grid items-center gap-12 md:grid-cols-[minmax(0,280px)_1fr]">
           <Reveal>
@@ -29,6 +28,11 @@ export default function About() {
               <span className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm text-text">
                 {profile.yearsExperience}+ years experience
               </span>
+              {profile.location && (
+                <span className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm text-text">
+                  {profile.location}
+                </span>
+              )}
             </div>
 
             {profile.availabilityNote && (

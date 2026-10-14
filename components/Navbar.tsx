@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { profile } from "@/data/profile";
+import { useEffect, useId, useState } from "react";
+import { profile, socialLinks } from "@/data/profile";
 import { getLenisInstance, scrollToSection } from "@/lib/lenis-singleton";
+import { unlockPageScroll } from "@/lib/unlock-scroll";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const LINKS = [
@@ -13,14 +14,18 @@ const LINKS = [
   { id: "devops", label: "DevOps" },
   { id: "projects", label: "Projects" },
   { id: "services", label: "Services" },
+  { id: "share", label: "Share & QR" },
   { id: "contact", label: "Contact" },
 ];
 
+const SECTION_IDS = ["hero", ...LINKS.map((l) => l.id)];
 const LENIS_ATTACH_MAX_ATTEMPTS = 40;
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeId, setActiveId] = useState("hero");
+  const menuId = useId();
 
   useEffect(() => {
     function readScrollY() {
@@ -29,7 +34,7 @@ export default function Navbar() {
     }
 
     function onScroll() {
-      setScrolled(readScrollY() > 24);
+      setScrolled(readScrollY() > 16);
     }
 
     onScroll();
@@ -59,124 +64,235 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => Boolean(el),
+    );
+    if (!elements.length) return;
+
+    const ratios = new Map<string, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+        let bestId = "hero";
+        let bestRatio = 0;
+        for (const id of SECTION_IDS) {
+          const r = ratios.get(id) ?? 0;
+          if (r > bestRatio) {
+            bestRatio = r;
+            bestId = id;
+          }
+        }
+        if (bestRatio > 0) setActiveId(bestId);
+      },
+      {
+        root: null,
+        rootMargin: "-20% 0px -55% 0px",
+        threshold: [0, 0.15, 0.35, 0.55, 0.75],
+      },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      unlockPageScroll();
+      return;
+    }
 
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setMenuOpen(false);
     }
 
-    const lenis = getLenisInstance();
-    // Prefer Lenis stop/start so we don't fight its scroll ownership with
-    // a raw overflow:hidden that can leave scroll stuck after close.
-    if (lenis) {
-      lenis.stop();
-    } else {
-      document.documentElement.style.overflow = "hidden";
-    }
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    getLenisInstance()?.stop();
 
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
-      if (lenis) {
-        lenis.start();
-      } else {
-        document.documentElement.style.overflow = "";
-      }
+      unlockPageScroll();
     };
   }, [menuOpen]);
 
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
   function go(id: string) {
     setMenuOpen(false);
-    // Defer scroll until after menu close restores Lenis/overflow.
-    window.requestAnimationFrame(() => scrollToSection(id));
+    setActiveId(id);
+    window.requestAnimationFrame(() => {
+      unlockPageScroll();
+      scrollToSection(id);
+    });
   }
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-[background-color,backdrop-filter,box-shadow] duration-300 ${
-        scrolled ? "site-nav-scrolled" : ""
+        scrolled || menuOpen ? "site-nav-scrolled" : ""
       }`}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8"
+        className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8"
+        style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))" }}
         aria-label="Primary"
       >
         <button
           type="button"
           onClick={() => go("hero")}
-          className="shrink-0 text-sm font-semibold tracking-wide text-text transition-colors hover:text-gold"
+          className="group relative z-[60] flex shrink-0 items-center gap-2.5 text-left"
         >
-          {profile.fullName}
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-[11px] font-bold tracking-wide text-white shadow-[0_0_0_1px_rgb(var(--gold)/0.28)] transition-transform duration-300 group-hover:scale-105"
+            aria-hidden="true"
+          >
+            AV
+          </span>
+          <span className="text-sm font-semibold tracking-wide text-text transition-colors group-hover:text-gold">
+            {profile.fullName}
+          </span>
         </button>
 
         <div className="hidden items-center gap-0.5 lg:flex">
-          {LINKS.map((link) => (
+          {LINKS.filter((l) => l.id !== "share").map((link) => (
             <button
               key={link.id}
               type="button"
               onClick={() => go(link.id)}
-              className="nav-link"
+              className={`nav-link ${activeId === link.id ? "nav-link-active" : ""}`}
+              aria-current={activeId === link.id ? "true" : undefined}
             >
               {link.label}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="relative z-[60] flex items-center gap-2">
           <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => go("contact")}
+          <a
+            href={profile.phoneHref}
             className="btn-primary hidden !px-5 !py-2.5 text-xs lg:inline-flex"
+            aria-label={`Call ${profile.phone}`}
           >
             Contact Me
-          </button>
+          </a>
           <button
             type="button"
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
+            aria-controls={menuId}
             onClick={() => setMenuOpen((v) => !v)}
-            className="icon-btn lg:hidden"
+            className="icon-btn relative flex h-11 w-11 items-center justify-center lg:hidden"
           >
-            <span className="sr-only">Menu</span>
-            <div className="flex flex-col gap-1.5 text-text" aria-hidden="true">
+            <span className="sr-only">{menuOpen ? "Close" : "Menu"}</span>
+            <span className="relative flex h-4 w-5 flex-col justify-between" aria-hidden="true">
               <span
-                className={`h-px w-5 bg-current transition-transform ${menuOpen ? "translate-y-1.5 rotate-45" : ""}`}
+                className={`block h-0.5 w-full origin-center rounded-full bg-current transition-all duration-300 ${
+                  menuOpen ? "translate-y-[7px] rotate-45" : ""
+                }`}
               />
-              <span className={`h-px w-5 bg-current transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
               <span
-                className={`h-px w-5 bg-current transition-transform ${menuOpen ? "-translate-y-1.5 -rotate-45" : ""}`}
+                className={`block h-0.5 w-full rounded-full bg-current transition-all duration-300 ${
+                  menuOpen ? "scale-x-0 opacity-0" : ""
+                }`}
               />
-            </div>
+              <span
+                className={`block h-0.5 w-full origin-center rounded-full bg-current transition-all duration-300 ${
+                  menuOpen ? "-translate-y-[7px] -rotate-45" : ""
+                }`}
+              />
+            </span>
           </button>
         </div>
       </nav>
 
-      {menuOpen && (
+      <div
+        id={menuId}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+        className={`fixed inset-0 z-50 lg:hidden ${menuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      >
+        <button
+          type="button"
+          aria-label="Close menu overlay"
+          tabIndex={menuOpen ? 0 : -1}
+          onClick={closeMenu}
+          className={`absolute inset-0 bg-[rgb(var(--overlay)/0.6)] backdrop-blur-md transition-opacity duration-300 ${
+            menuOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
         <div
-          id="mobile-nav"
-          className="glass-panel mx-4 mb-4 flex max-h-[min(70vh,28rem)] flex-col gap-1 overflow-y-auto p-3 lg:hidden"
+          className={`absolute inset-x-0 top-0 flex max-h-[100dvh] flex-col border-b border-[rgb(var(--hairline)/var(--hairline-a))] bg-background/96 pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.75rem))] shadow-[0_24px_64px_-28px_rgb(var(--primary)/0.4)] backdrop-blur-xl transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-y-0" : "-translate-y-full"
+          }`}
+          style={{
+            paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))",
+          }}
         >
-          {LINKS.map((link) => (
-            <button
-              key={link.id}
-              type="button"
-              onClick={() => go(link.id)}
-              className="nav-link w-full rounded-xl px-4 py-3 text-left"
+          <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-1 overflow-y-auto overscroll-contain px-5 pb-6">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
+              Navigate
+            </p>
+            {LINKS.map((link, i) => (
+              <button
+                key={link.id}
+                type="button"
+                tabIndex={menuOpen ? 0 : -1}
+                onClick={() => go(link.id)}
+                className={`flex min-h-12 items-center justify-between rounded-2xl px-4 py-3 text-left text-base font-medium transition-colors ${
+                  activeId === link.id
+                    ? "bg-[rgb(var(--gold)/0.12)] text-gold"
+                    : "text-text hover:bg-[rgb(var(--hover-fill)/var(--hover-fill-a))] hover:text-gold"
+                } ${menuOpen ? "opacity-100" : "opacity-0"}`}
+                style={{
+                  transitionDelay: menuOpen ? `${80 + i * 28}ms` : "0ms",
+                  transitionProperty: "opacity, color, background-color",
+                  transitionDuration: "280ms",
+                }}
+              >
+                <span>{link.label}</span>
+                <span className="font-mono text-[10px] text-muted" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </button>
+            ))}
+
+            <a
+              href={profile.phoneHref}
+              tabIndex={menuOpen ? 0 : -1}
+              onClick={closeMenu}
+              className="btn-primary mt-4 w-full !py-3.5 text-sm"
+              aria-label={`Call ${profile.phone}`}
             >
-              {link.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => go("contact")}
-            className="btn-primary mt-2 w-full !py-2.5 text-xs"
-          >
-            Contact Me
-          </button>
+              Contact Me
+            </a>
+
+            <div className="mt-6 flex items-center justify-center gap-4 border-t border-[rgb(var(--hairline)/var(--hairline-a))] pt-5">
+              {socialLinks.map((s) => (
+                <a
+                  key={s.platform}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="text-sm font-medium text-muted transition-colors hover:text-gold"
+                >
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

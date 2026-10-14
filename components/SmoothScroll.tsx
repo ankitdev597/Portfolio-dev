@@ -27,13 +27,25 @@ export default function SmoothScroll() {
       return;
     }
 
+    const isCoarse = window.matchMedia("(pointer: coarse)").matches;
+
     const lenis = new Lenis({
-      duration: 1.05,
+      duration: isCoarse ? 0.85 : 1.05,
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
+      // Avoid fighting native touch inertia — prevents “stuck” feel on phones.
+      syncTouch: false,
+      touchMultiplier: isCoarse ? 1.15 : 1,
     });
 
     setLenisInstance(lenis);
+
+    // Preloader / menus set body overflow:hidden — stay paused until unlockPageScroll.
+    if (document.body.style.overflow === "hidden") {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
 
     const unsubScroll = lenis.on("scroll", ScrollTrigger.update);
 
