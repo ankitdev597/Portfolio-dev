@@ -2,6 +2,7 @@
 
 import { skillCategories, type SkillIconKey } from "@/data/skills";
 import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
 import SectionHeading from "@/components/SectionHeading";
 import BrandIcon from "@/components/BrandIcon";
 import {
@@ -30,48 +31,54 @@ const SKILL_ICONS: Record<SkillIconKey, LucideIcon> = {
 /** Always-visible skill chips — brand logos where verified, labels always shown. */
 export default function Skills() {
   return (
-    <section id="skills" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeading
-          eyebrow="Skills"
-          description="A production toolkit across languages, frameworks, cloud, and AI — organized the way I actually ship."
-        />
+    <Section id="skills">
+      <SectionHeading
+        eyebrow="Skills"
+        description="A production toolkit across languages, frameworks, cloud, and AI — organized the way I actually ship."
+      />
 
-        <div className="mt-14 grid grid-cols-1 items-stretch gap-4 min-[360px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-          {skillCategories.map((category, i) => {
-            const Icon = SKILL_ICONS[category.icon];
+      <div className="section-card-grid-2">
+        {skillCategories.map((category, i) => {
+          const Icon = SKILL_ICONS[category.icon];
 
-            return (
-              <Reveal key={category.name} delay={(i % 4) * 0.05} className="h-full">
-                <article className="glass-panel card-depth flex h-full min-h-[16.5rem] flex-col p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 text-gold">
-                      <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="min-h-[2.5rem] text-sm font-semibold leading-snug text-text">
-                        {category.name}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-muted">
-                        {category.skills.length} skills
-                      </p>
-                    </div>
+          return (
+            <Reveal key={category.name} delay={(i % 2) * 0.05} className="h-full">
+              <article className="glass-panel card-depth group flex h-full min-h-[22rem] flex-col p-5 sm:min-h-[24rem] sm:p-6">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 text-gold transition-transform duration-300 group-hover:scale-105">
+                    <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-semibold leading-snug text-text sm:text-lg">
+                      {category.name}
+                    </h3>
+                    <p className="mt-0.5 text-xs text-muted sm:text-sm">
+                      {category.skills.length} skills
+                    </p>
                   </div>
+                </div>
 
-                  <ul className="mt-4 flex flex-1 flex-wrap content-start gap-1.5">
-                    {category.skills.map((skill) => (
-                      <li key={skill} className="tech-chip">
-                        <BrandIcon name={skill} className="h-3.5 w-3.5 shrink-0" />
-                        <span>{skill}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              </Reveal>
-            );
-          })}
-        </div>
+                <p className="mt-4 min-h-[2.75rem] text-sm leading-relaxed text-muted">
+                  {category.summary}
+                </p>
+
+                <ul className="mt-5 flex min-h-[5.5rem] flex-1 flex-wrap content-start gap-1.5">
+                  {category.skills.map((skill) => (
+                    <li key={skill} className="tech-chip">
+                      <BrandIcon name={skill} className="h-3.5 w-3.5 shrink-0" />
+                      <span>{skill}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="soft-hairline mt-auto border-t pt-4 text-xs font-medium text-muted">
+                  Production-ready stack
+                </div>
+              </article>
+            </Reveal>
+          );
+        })}
       </div>
-    </section>
+    </Section>
   );
 }

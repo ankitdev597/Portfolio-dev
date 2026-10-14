@@ -90,9 +90,8 @@ export default function Hero() {
     <section
       ref={rootRef}
       id="hero"
-      className="relative flex min-h-[100vh] items-center overflow-hidden -mt-[72px] pt-[72px] px-4 sm:px-6 lg:px-8"
+      className="relative flex min-h-[100vh] items-center overflow-hidden -mt-[72px] pt-[72px]"
     >
-      {/* Soft theme-aware ambient — gold primary, crimson secondary */}
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"
@@ -112,7 +111,7 @@ export default function Hero() {
         <HeroScene />
       </div>
 
-      <div className="relative z-[3] mx-auto w-full max-w-6xl pointer-events-none py-24 lg:py-32">
+      <div className="container-page relative z-[3] pointer-events-none py-24 lg:py-32">
         <div className="max-w-[620px] pointer-events-auto">
           <p
             data-hero="label"

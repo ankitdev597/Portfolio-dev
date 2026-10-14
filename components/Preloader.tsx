@@ -1,28 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { profile } from "@/data/profile";
 import { getLenisInstance } from "@/lib/lenis-singleton";
 import { unlockPageScroll } from "@/lib/unlock-scroll";
 
-const PreloaderScene = dynamic(() => import("@/components/PreloaderScene"), {
-  ssr: false,
-  loading: () => null,
-});
-
 /** Premium pacing — long enough to feel intentional, never endless. */
-const MIN_DURATION_MS = 2800;
-const MAX_DURATION_MS = 5200;
+const MIN_DURATION_MS = 2400;
+const MAX_DURATION_MS = 4800;
 
 /**
- * Cinematic brand loader: GSAP-driven 1→100% counter, gold progress rail,
- * then a boom reveal that clears into the site.
+ * Cinematic brand loader: GSAP-driven 0→100% counter + gold progress rail,
+ * then a boom reveal. 3D orb lives full-screen on the hero — not here.
  */
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
-  const [useScene, setUseScene] = useState(false);
   const [percent, setPercent] = useState(0);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -30,59 +23,46 @@ export default function Preloader() {
   const brandRef = useRef<HTMLParagraphElement>(null);
   const percentRef = useRef<HTMLSpanElement>(null);
   const barFillRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLParagraphElement>(null);
 
   const progressProxy = useRef({ value: 0 });
   const loadDoneRef = useRef(false);
   const boomStartedRef = useRef(false);
   const mountedAtRef = useRef(0);
-  const reduceMotionRef = useRef(false);
 
   useEffect(() => {
     mountedAtRef.current = performance.now();
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
-    const saveData =
-      typeof navigator !== "undefined" &&
-      "connection" in navigator &&
-      Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
 
-    reduceMotionRef.current = prefersReducedMotion;
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     document.body.style.touchAction = "none";
     getLenisInstance()?.stop();
 
-    if (!prefersReducedMotion && !coarsePointer && !saveData) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUseScene(true);
-    }
-
     const root = rootRef.current;
     const brand = brandRef.current;
     const bar = barFillRef.current;
-    const ring = ringRef.current;
+    const spin = spinRef.current;
     const label = labelRef.current;
     const pctEl = percentRef.current;
 
-    // Entrance
     if (!prefersReducedMotion && root) {
       const tlIn = gsap.timeline({ defaults: { ease: "power3.out" } });
       tlIn
-        .fromTo(root, { opacity: 0 }, { opacity: 1, duration: 0.45 })
+        .fromTo(root, { opacity: 0 }, { opacity: 1, duration: 0.4 })
         .fromTo(
           brand,
-          { opacity: 0, y: 28, filter: "blur(8px)" },
-          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9 },
-          0.15,
+          { opacity: 0, y: 24, filter: "blur(8px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8 },
+          0.12,
         )
-        .fromTo(label, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.55 }, 0.35)
+        .fromTo(label, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5 }, 0.28)
         .fromTo(
-          [ring, pctEl, bar?.parentElement],
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.65, stagger: 0.08 },
-          0.28,
+          [spin, pctEl, bar?.parentElement],
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.06 },
+          0.22,
         );
     }
 
@@ -95,7 +75,7 @@ export default function Preloader() {
 
     const progressTween = gsap.to(progressProxy.current, {
       value: 92,
-      duration: prefersReducedMotion ? 0.6 : 3.4,
+      duration: prefersReducedMotion ? 0.55 : 3.0,
       ease: "power1.out",
       onUpdate: () => setProgressVisual(progressProxy.current.value),
     });
@@ -111,11 +91,10 @@ export default function Preloader() {
       window.addEventListener("load", markLoadDone, { once: true });
     }
 
-    // Soft bump as DOM becomes interactive
     if (document.readyState === "interactive" || document.readyState === "complete") {
       gsap.to(progressProxy.current, {
         value: Math.max(progressProxy.current.value, 55),
-        duration: 0.8,
+        duration: 0.7,
         ease: "power2.out",
         overwrite: false,
         onUpdate: () => setProgressVisual(progressProxy.current.value),
@@ -140,7 +119,7 @@ export default function Preloader() {
 
         gsap.to(progressProxy.current, {
           value: 100,
-          duration: prefersReducedMotion ? 0.2 : 0.55,
+          duration: prefersReducedMotion ? 0.2 : 0.5,
           ease: "power2.inOut",
           onUpdate: () => setProgressVisual(progressProxy.current.value),
           onComplete: () => runBoom(prefersReducedMotion),
@@ -176,34 +155,34 @@ export default function Preloader() {
       });
 
       boom
-        .to(brand, { scale: 1.06, duration: 0.28, ease: "power2.out" }, 0)
+        .to(brand, { scale: 1.05, duration: 0.26, ease: "power2.out" }, 0)
         .to(
           pctEl,
-          { scale: 1.12, color: "rgb(var(--gold))", duration: 0.28, ease: "power2.out" },
+          { scale: 1.1, color: "rgb(var(--gold))", duration: 0.26, ease: "power2.out" },
           0,
         )
         .fromTo(
           flash,
           { opacity: 0, scale: 0.6 },
-          { opacity: 0.85, scale: 1.15, duration: 0.22, ease: "power2.out" },
-          0.12,
+          { opacity: 0.8, scale: 1.12, duration: 0.2, ease: "power2.out" },
+          0.1,
         )
-        .to(flash, { opacity: 0, duration: 0.45, ease: "power2.in" }, 0.32)
+        .to(flash, { opacity: 0, duration: 0.4, ease: "power2.in" }, 0.28)
         .to(
-          [brand, label, ring, pctEl, bar?.parentElement],
-          { opacity: 0, y: -24, filter: "blur(10px)", duration: 0.4, stagger: 0.03 },
-          0.28,
+          [brand, label, spin, pctEl, bar?.parentElement],
+          { opacity: 0, y: -20, filter: "blur(8px)", duration: 0.35, stagger: 0.03 },
+          0.25,
         )
         .to(
           el,
           {
             opacity: 0,
-            scale: 1.08,
-            filter: "blur(12px)",
-            duration: 0.7,
+            scale: 1.06,
+            filter: "blur(10px)",
+            duration: 0.6,
             ease: "power4.inOut",
           },
-          0.42,
+          0.38,
         );
     }
 
@@ -230,13 +209,11 @@ export default function Preloader() {
       aria-label={`Loading portfolio ${percent} percent`}
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-background"
     >
-      {/* Ambient gold / crimson glow */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute left-1/2 top-[28%] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gold/[0.1] blur-[120px]" />
         <div className="absolute bottom-[18%] left-[20%] h-[280px] w-[280px] rounded-full bg-primary/[0.07] blur-[100px]" />
       </div>
 
-      {/* Boom flash */}
       <div
         ref={flashRef}
         aria-hidden="true"
@@ -249,21 +226,11 @@ export default function Preloader() {
 
       <div className="relative z-10 flex w-full max-w-md flex-col items-center px-6">
         <div
-          ref={ringRef}
-          className="relative mb-8 flex h-40 w-full max-w-xs items-center justify-center sm:h-48"
+          ref={spinRef}
+          className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-gold/30 bg-gold/5"
+          aria-hidden="true"
         >
-          {useScene ? (
-            <div className="h-full w-full">
-              <PreloaderScene />
-            </div>
-          ) : (
-            <div
-              className="flex h-28 w-28 items-center justify-center rounded-full border border-gold/30 bg-gold/5"
-              aria-hidden="true"
-            >
-              <span className="h-12 w-12 rounded-full border-2 border-gold/50 border-t-transparent motion-safe:animate-spin" />
-            </div>
-          )}
+          <span className="h-10 w-10 rounded-full border-2 border-gold/55 border-t-transparent motion-safe:animate-spin" />
         </div>
 
         <p

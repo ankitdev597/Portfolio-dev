@@ -140,7 +140,7 @@ export default function Navbar() {
       }`}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8"
+        className="container-page flex items-center justify-between gap-3 py-3.5"
         style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))" }}
         aria-label="Primary"
       >

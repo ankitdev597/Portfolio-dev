@@ -1,5 +1,6 @@
 import { profile, socialLinks } from "@/data/profile";
 import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
 import SectionHeading from "@/components/SectionHeading";
 
 const ICONS: Record<string, string> = {
@@ -10,18 +11,18 @@ const ICONS: Record<string, string> = {
 
 export default function Contact() {
   return (
-    <section id="contact" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-      <div className="mx-auto max-w-3xl text-center">
-        <SectionHeading
-          eyebrow="Contact"
-          title="Let's build something together."
-          description="Prefer a quick call or a clear email — either way, you'll reach me directly."
-        />
+    <Section id="contact">
+      <SectionHeading
+        eyebrow="Contact"
+        title="Let's build something together."
+        description="Prefer a quick call or a clear email — either way, you'll reach me directly."
+      />
 
-        <Reveal delay={0.1}>
+      <Reveal delay={0.1} className="section-stack">
+        <div className="mx-auto max-w-2xl text-center">
           <a
             href={profile.phoneHref}
-            className="mt-8 inline-block text-2xl font-semibold tracking-tight text-gold transition-colors hover:text-primary sm:text-3xl"
+            className="inline-block text-2xl font-semibold tracking-tight text-gold transition-colors hover:text-primary sm:text-3xl"
             aria-label={`Call ${profile.phone}`}
           >
             {profile.phone}
@@ -61,8 +62,8 @@ export default function Contact() {
               </a>
             ))}
           </div>
-        </Reveal>
-      </div>
-    </section>
+        </div>
+      </Reveal>
+    </Section>
   );
 }
