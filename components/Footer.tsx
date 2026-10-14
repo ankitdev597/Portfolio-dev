@@ -1,9 +1,16 @@
-import { profile } from "@/data/profile";
+import { siteConfig } from "@/data/data";
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="border-t border-white/[0.08] px-4 py-8 text-center text-xs text-muted sm:px-6 lg:px-8">
-      © {new Date().getFullYear()} {profile.fullName}. All rights reserved.
+    <footer className="border-t border-border py-8">
+      <div className="container-page flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <p className="text-sm text-muted">
+          © {year} {siteConfig.name}. All rights reserved.
+        </p>
+        <p className="text-sm text-muted">{siteConfig.availability}</p>
+      </div>
     </footer>
   );
 }

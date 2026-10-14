@@ -26,7 +26,7 @@ export const profile: Profile = {
   yearsExperience: 4,
   availability: "available",
   availabilityNote:
-    "Currently serving notice (last working day 10 Nov 2026) - immediate joiner available with an early release.",
+    "Immediate Joiner — currently serving notice (last working day 10 Nov 2026); early release available.",
   email: "av841344@gmail.com",
   location: "Pratapgarh, Uttar Pradesh, India",
 };

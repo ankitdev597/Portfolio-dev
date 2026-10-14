@@ -6,9 +6,9 @@ export default function Resume() {
     <section id="resume" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <Reveal>
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             Resume
-          </p>
+          </h2>
           <span className="divider-premium" />
         </Reveal>
 

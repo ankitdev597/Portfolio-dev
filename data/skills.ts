@@ -65,9 +65,11 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       "OpenAI API",
       "Third-Party LLM Integration",
+      "AI Tools",
       "Prompt Engineering",
       "Cursor",
       "Claude AI",
+      "ChatGPT",
     ],
   },
   {

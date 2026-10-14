@@ -12,14 +12,18 @@ export type ServiceIconKey =
   | "database"
   | "automation";
 
-/** Services with a dedicated animated 3D visual instead of a flat icon badge. */
-export type ServiceVisual = "database" | "automation";
+/**
+ * Visual key for each service card.
+ * Mapped 1:1 in `components/service-visuals`. Database also mounts lazy WebGL.
+ */
+export type ServiceVisual = ServiceIconKey;
 
 export interface Service {
   title: string;
   description: string;
   icon: ServiceIconKey;
-  visual?: ServiceVisual;
+  /** Required — every card has a matching visual. */
+  visual: ServiceVisual;
   /** Short technology/technique chips shown under the description. */
   techBadges?: string[];
 }
@@ -29,6 +33,7 @@ export const services: Service[] = [
     title: "Full Stack Development",
     description: "End-to-end web application development from database to UI.",
     icon: "fullstack",
+    visual: "fullstack",
   },
   {
     title: "Database Design & Architecture",
@@ -50,45 +55,54 @@ export const services: Service[] = [
     title: "Laravel Development",
     description: "Robust, scalable backends built on Laravel and PHP.",
     icon: "laravel",
+    visual: "laravel",
   },
   {
     title: "React Development",
     description: "Modern, interactive frontends built with React and TypeScript.",
     icon: "react",
+    visual: "react",
   },
   {
     title: "MERN Development",
     description: "Full JavaScript-stack applications with MongoDB, Express, React, and Node.js.",
     icon: "mern",
+    visual: "mern",
   },
   {
     title: "AI / LLM Integration",
     description: "Integrating OpenAI and other LLMs into production applications.",
     icon: "ai",
+    visual: "ai",
   },
   {
     title: "API Development",
     description: "RESTful API architecture and integration.",
     icon: "api",
+    visual: "api",
   },
   {
     title: "AWS Deployment",
     description: "Cloud infrastructure and deployment on AWS (EC2, SES, SNS).",
     icon: "aws",
+    visual: "aws",
   },
   {
     title: "CI/CD",
     description: "Automated build, test, and deployment pipelines.",
     icon: "cicd",
+    visual: "cicd",
   },
   {
     title: "Server Configuration",
     description: "Linux server administration, Nginx/Apache, and SSL setup.",
     icon: "server",
+    visual: "server",
   },
   {
     title: "Real-Time WebSocket Applications",
     description: "Real-time features powered by WebSockets and Laravel Reverb.",
     icon: "realtime",
+    visual: "realtime",
   },
 ];

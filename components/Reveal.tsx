@@ -1,12 +1,8 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface RevealProps {
   children: ReactNode;
@@ -16,35 +12,88 @@ interface RevealProps {
   y?: number;
 }
 
-/** Fades + rises children into view once, the first time they cross into the viewport. */
-export default function Reveal({ children, className, delay = 0, y = 28 }: RevealProps) {
+/**
+ * Grouped fade/rise reveal via GSAP + ScrollTrigger.
+ * Scoped with gsap.context; failsafe keeps content visible if ST stalls.
+ * Do not wrap the Hero — it uses its own entrance timeline.
+ */
+export default function Reveal({
+  children,
+  className,
+  delay = 0,
+  y = 24,
+}: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    gsap.registerPlugin(ScrollTrigger);
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (prefersReducedMotion) {
-      gsap.set(el, { opacity: 1, y: 0 });
+      gsap.set(el, { clearProps: "all", opacity: 1, y: 0 });
       return;
     }
 
-    gsap.set(el, { opacity: 0, y });
+    const safeDelay = Math.min(Math.max(delay, 0), 0.14);
+    let completed = false;
+    let failSafe = 0;
+    let trigger: ScrollTrigger | undefined;
 
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: "top 85%",
-      once: true,
-      onEnter: () => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.8, delay, ease: "power3.out" });
-      },
-    });
+    const ctx = gsap.context(() => {
+      const show = () => {
+        gsap.set(el, { opacity: 1, y: 0, clearProps: "transform" });
+      };
 
-    return () => trigger.kill();
+      const reveal = () => {
+        if (completed) return;
+        completed = true;
+        window.clearTimeout(failSafe);
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.68,
+          delay: safeDelay,
+          ease: "power2.out",
+          clearProps: "transform",
+          overwrite: true,
+        });
+      };
+
+      failSafe = window.setTimeout(() => {
+        if (completed) return;
+        completed = true;
+        show();
+      }, 3000);
+
+      const inView = el.getBoundingClientRect().top < window.innerHeight * 0.94;
+      gsap.set(el, { opacity: 0, y });
+
+      if (inView) {
+        // Slight delay so hero timeline owns the first paint.
+        window.requestAnimationFrame(() => reveal());
+        return;
+      }
+
+      trigger = ScrollTrigger.create({
+        trigger: el,
+        start: "top 90%",
+        once: true,
+        onEnter: reveal,
+      });
+    }, el);
+
+    return () => {
+      window.clearTimeout(failSafe);
+      trigger?.kill();
+      ctx.revert();
+      gsap.set(el, { clearProps: "all", opacity: 1, y: 0 });
+    };
   }, [delay, y]);
 
   return (

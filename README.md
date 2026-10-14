@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ankit Vishwakarma — Portfolio
 
-## Getting Started
+Professional, fully responsive developer portfolio built with **Next.js (App Router)**, **React**, **Tailwind CSS**, and light **Motion** fade/slide effects. Dark by default with a light/dark toggle. No Three.js, GSAP, or particle canvases.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS v4
+- Motion (`motion/react`) for light entrance animations
+- Lucide icons
+- Deploy target: Vercel
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+npm start
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub.
+2. Import the project in [Vercel](https://vercel.com).
+3. Set environment variables (optional):
+   - `NEXT_PUBLIC_SITE_URL` — canonical site URL (default `https://ankitvishwakarma.dev`)
+   - `NEXT_PUBLIC_FORMSPREE_ID` — Formspree form id for the contact form
+4. Deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Content
+
+All copy lives in [`data/data.ts`](./data/data.ts). Update that file to change profile, skills, experience, projects, education, and SEO strings.
+
+Optional personal projects: fill the empty `personalProjects` array in `data/data.ts`.
+
+## What you need to replace
+
+| Item | Path / env | Notes |
+| --- | --- | --- |
+| Profile photo | `public/images/profile-photo.jpg` | Used in hero + Open Graph |
+| Resume PDF | `public/resume.pdf` | Linked from navbar + hero |
+| Contact form | `NEXT_PUBLIC_FORMSPREE_ID` | Without it, the form falls back to `mailto:` |
+| Site URL | `NEXT_PUBLIC_SITE_URL` | Canonical URL, sitemap, JSON-LD |
+
+## Sections
+
+1. Sticky navbar + theme toggle + Download Resume  
+2. Hero  
+3. About  
+4. Skills  
+5. Experience  
+6. Projects (filter tabs)  
+7. Education & Certifications  
+8. Contact + footer  
+
+## Accessibility & SEO
+
+- Skip-to-content link, semantic landmarks, visible focus rings  
+- `prefers-reduced-motion` respected  
+- Meta, Open Graph, Twitter cards, JSON-LD `Person`  
+- `app/sitemap.ts`, `app/robots.ts`, `public/favicon.svg`

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { profile, socialLinks } from "@/data/profile";
 import { MapPin, X } from "@/components/icons";
 
@@ -18,6 +18,7 @@ const GITHUB_ICON_PATH =
  */
 export default function ProfilePhotoModal() {
   const [open, setOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
   // The dialog is portaled to document.body (see the render below) so it
   // isn't affected by any ancestor's CSS transform - Reveal leaves an
   // inline `transform` on its wrapper after animating in, and any
@@ -83,20 +84,20 @@ export default function ProfilePhotoModal() {
             {open && (
               <motion.div
                 className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-                initial={{ opacity: 0 }}
+                initial={reduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
+                exit={reduceMotion ? undefined : { opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.22 }}
                 onClick={() => setOpen(false)}
                 role="dialog"
                 aria-modal="true"
                 aria-label={`${profile.fullName} - photo`}
               >
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 12 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.96, y: 12 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
                   onClick={(e) => e.stopPropagation()}
                   className="glass-panel relative w-full max-w-sm overflow-hidden"
                 >

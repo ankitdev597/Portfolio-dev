@@ -12,18 +12,18 @@ export default function Contact() {
     <section id="contact" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-3xl text-center">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Contact</p>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">Contact</h2>
           <span className="divider-premium" />
         </Reveal>
 
         <Reveal delay={0.1}>
-          <h2 className="mt-8 text-3xl font-bold text-text sm:text-4xl">
+          <p className="mt-8 text-3xl font-bold text-text sm:text-4xl">
             Let&apos;s build something together.
-          </h2>
+          </p>
 
           <a
             href={`mailto:${profile.email}`}
-            className="mt-4 inline-block text-lg text-primary transition-colors hover:text-accent"
+            className="mt-4 inline-block text-lg text-gold transition-colors hover:text-primary"
           >
             {profile.email}
           </a>

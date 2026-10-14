@@ -7,9 +7,9 @@ export default function About() {
     <section id="about" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             About
-          </p>
+          </h2>
           <span className="divider-premium" />
         </Reveal>
 
@@ -22,9 +22,9 @@ export default function About() {
             <p className="text-lg leading-relaxed text-muted sm:text-xl">{profile.shortBio}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <span className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm text-text">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Available for work
+              <span className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                Immediate Joiner
               </span>
               <span className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm text-text">
                 {profile.yearsExperience}+ years experience

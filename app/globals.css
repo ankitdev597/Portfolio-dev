@@ -1,28 +1,57 @@
 @import "tailwindcss";
 
 /*
- * "Crimson Noir" design tokens, ported from the original Laravel site's
- * resources/css/app.css. Every color reads from one of these CSS
- * variables rather than a hard-coded hex, same discipline as before.
- * Dark-only by design (the original site never had a light mode) - see
- * html{color-scheme:dark} below.
+ * Crimson Noir + Warm Gold
+ * Dark: graphite / plum with antique brass
+ * Light: ivory parchment with richer gold
  */
-:root {
-    --background: 8 5 5;           /* #080505 - near-black with a whisper of red */
-    --surface: 24 9 9;             /* #180909 - dark red-black charcoal */
-    --surface-elevated: 36 13 13;  /* #240d0d */
-    --primary: 220 38 38;          /* #dc2626 - vivid signature red */
-    --secondary: 127 29 29;        /* #7f1d1d - deep maroon */
-    --accent: 248 113 113;         /* #f87171 - brighter rose, for highlights/glow contrast */
-    --text: 245 240 240;           /* #f5f0f0 - warm soft white */
-    --muted: 168 130 130;          /* #a88282 - red-tinted grey */
-    --border: 255 255 255;
-    --border-opacity: 0.08;
+:root,
+[data-theme="dark"] {
+    --background: 8 8 10;            /* #08080A */
+    --surface: 18 16 18;             /* #121012 */
+    --surface-elevated: 28 22 26;    /* #1C161A */
+    --primary: 180 52 62;            /* #B4343E */
+    --secondary: 120 38 46;          /* #78262E */
+    --accent: 196 162 110;           /* #C4A26E gold */
+    --text: 232 228 222;             /* #E8E4DE */
+    --muted: 140 132 124;
+    --border: 52 42 48;
+    --gold: 196 162 110;
+    --chip-bg: 255 255 255;
+    --chip-bg-a: 0.05;
+    --chip-border-a: 0.1;
+    --hover-fill: 255 255 255;
+    --hover-fill-a: 0.06;
+    --hairline: 255 255 255;
+    --hairline-a: 0.08;
+    --overlay: 0 0 0;
+    --card-shadow: 0 18px 42px -28px rgb(196 162 110 / 0.22);
+    --glow-primary: 0.08;
+    --glow-gold: 0.07;
+}
 
-    /* Metallic gold trim, layered on top of the black/red palette for
-     * dividers, hover hairlines, and card-shadow whispers - never a
-     * competing dominant color. */
-    --gold: 212 175 55;            /* #d4af37 */
+[data-theme="light"] {
+    --background: 250 246 240;       /* #FAF6F0 warm ivory */
+    --surface: 255 252 248;          /* #FFFCF8 */
+    --surface-elevated: 244 237 226; /* #F4EDE2 */
+    --primary: 168 48 58;            /* #A8303A */
+    --secondary: 120 40 48;          /* #782830 */
+    --accent: 168 124 62;            /* #A87C3E richer gold */
+    --text: 28 24 22;                /* #1C1816 ink */
+    --muted: 108 98 88;
+    --border: 214 200 178;
+    --gold: 168 124 62;
+    --chip-bg: 168 124 62;
+    --chip-bg-a: 0.08;
+    --chip-border-a: 0.28;
+    --hover-fill: 168 124 62;
+    --hover-fill-a: 0.1;
+    --hairline: 168 124 62;
+    --hairline-a: 0.22;
+    --overlay: 28 24 22;
+    --card-shadow: 0 16px 36px -22px rgb(168 124 62 / 0.28);
+    --glow-primary: 0.06;
+    --glow-gold: 0.1;
 }
 
 @theme inline {
@@ -36,37 +65,49 @@
     --color-muted: rgb(var(--muted));
     --color-gold: rgb(var(--gold));
 
-    /* System font stack, not a Google Fonts import - no network
-     * dependency at build time (this exact class of fragility is what
-     * broke the previous Laravel deploy's builds), and every OS/browser
-     * already ships a fast, well-hinted sans-serif that reads as
-     * "clean and modern" here. */
     --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
         Arial, sans-serif;
 }
 
 @layer base {
     * {
-        border-color: rgb(var(--border) / var(--border-opacity));
+        border-color: rgb(var(--border) / 0.85);
     }
 
     html {
         color-scheme: dark;
+        overflow-x: clip;
+    }
+
+    html[data-theme="light"] {
+        color-scheme: light;
+    }
+
+    section[id] {
+        scroll-margin-top: 5.5rem;
     }
 
     body {
         @apply bg-background text-text antialiased;
+        max-width: 100%;
+        overflow-x: clip;
         background-image:
-            radial-gradient(ellipse 70% 45% at 15% -10%, rgb(var(--primary) / 0.28), transparent 60%),
-            radial-gradient(ellipse 60% 40% at 100% 15%, rgb(var(--secondary) / 0.18), transparent 60%),
-            radial-gradient(ellipse 55% 45% at 90% 90%, rgb(var(--accent) / 0.14), transparent 60%),
-            radial-gradient(ellipse 50% 35% at 0% 100%, rgb(var(--primary) / 0.12), transparent 60%);
-        background-attachment: fixed;
+            radial-gradient(ellipse 55% 34% at 8% -4%, rgb(var(--primary) / var(--glow-primary)), transparent 58%),
+            radial-gradient(ellipse 48% 30% at 100% 6%, rgb(var(--gold) / var(--glow-gold)), transparent 52%),
+            radial-gradient(ellipse 42% 32% at 92% 96%, rgb(var(--primary) / calc(var(--glow-primary) * 0.7)), transparent 55%);
+        background-attachment: scroll;
         background-repeat: no-repeat;
+        transition: background-color 280ms ease, color 280ms ease;
+    }
+
+    @media (min-width: 1024px) {
+        body {
+            background-attachment: fixed;
+        }
     }
 
     ::selection {
-        @apply bg-primary/30 text-text;
+        @apply bg-accent/30 text-text;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -78,34 +119,74 @@
             transition-duration: 0.01ms !important;
             scroll-behavior: auto !important;
         }
+
+        .loader-sweep {
+            animation: none !important;
+            transform: translateX(0) !important;
+        }
+
+        .hero-reveal {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+
+        .hero-scroll-cue {
+            animation: none !important;
+        }
     }
 }
 
 @layer components {
     .glass-panel {
-        @apply bg-surface/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl transition-[box-shadow,border-color] duration-300;
+        @apply rounded-2xl backdrop-blur-xl transition-[box-shadow,border-color,transform,background-color] duration-300;
+        background-color: rgb(var(--surface) / 0.88);
+        border: 1px solid rgb(var(--border) / 0.85);
+        box-shadow: 0 1px 0 0 rgb(var(--gold) / 0.06);
     }
 
-    .glass-panel:hover {
-        border-color: rgb(var(--primary) / 0.3);
-        box-shadow: 0 24px 60px -24px rgb(var(--primary) / 0.45), 0 0 0 1px rgb(var(--primary) / 0.12),
-            0 2px 24px -8px rgb(var(--gold) / 0.15);
+    .card-depth {
+        transform: perspective(900px) translateZ(0);
+        transform-style: preserve-3d;
+        will-change: transform;
     }
 
-    /* Thin metallic-gold divider for section headings. */
+    @media (hover: hover) and (pointer: fine) {
+        .glass-panel:hover {
+            border-color: rgb(var(--gold) / 0.55);
+            box-shadow: var(--card-shadow), 0 0 0 1px rgb(var(--gold) / 0.12);
+        }
+
+        .card-depth:hover {
+            transform: perspective(900px) rotateX(1.2deg) translateY(-3px);
+            border-color: rgb(var(--gold) / 0.65);
+            box-shadow: var(--card-shadow), 0 0 0 1px rgb(var(--gold) / 0.16);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 28px -12px rgb(var(--gold) / 0.45), inset 0 0 0 1px rgb(var(--gold) / 0.28);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .card-depth,
+        .card-depth:hover {
+            transform: none;
+            will-change: auto;
+        }
+    }
+
     .divider-premium {
         @apply mx-auto mt-3 block h-px w-16;
         background-image: linear-gradient(
             90deg,
             transparent,
-            rgb(var(--primary) / 0.7),
-            rgb(var(--gold) / 0.9),
-            rgb(var(--primary) / 0.7),
+            rgb(var(--gold) / 0.55),
+            rgb(var(--primary) / 0.55),
+            rgb(var(--gold) / 0.55),
             transparent
         );
     }
 
-    /* Premium gradient text (red -> gold -> red) for display-size headlines only. */
     .text-premium {
         background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--gold)), rgb(var(--primary)));
         background-clip: text;
@@ -113,15 +194,13 @@
         color: transparent;
     }
 
-    /* Set while CustomCursor is mounted (desktop pointer-fine only). */
     .cursor-none,
     .cursor-none * {
         cursor: none !important;
     }
 
-    /* Signature text gradient - vivid red -> maroon -> rose. */
     .text-aurora {
-        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--secondary)), rgb(var(--accent)));
+        background-image: linear-gradient(90deg, rgb(var(--primary)), rgb(var(--secondary)), rgb(var(--gold)));
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
@@ -131,23 +210,70 @@
         @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white
         transition-[filter,box-shadow] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none;
-        background-image: linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary)));
-        box-shadow: 0 12px 30px -10px rgb(var(--primary) / 0.55), inset 0 0 0 1px rgb(var(--gold) / 0);
+        background-image: linear-gradient(145deg, rgb(var(--primary)), rgb(var(--secondary)));
+        box-shadow: 0 10px 24px -12px rgb(var(--primary) / 0.35), 0 0 0 1px rgb(var(--gold) / 0.18);
         transition: filter 300ms, box-shadow 300ms;
     }
 
-    .btn-primary:hover {
-        box-shadow: 0 16px 36px -10px rgb(var(--primary) / 0.6), inset 0 0 0 1px rgb(var(--gold) / 0.4);
-    }
-
     .btn-secondary {
-        @apply inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm
-        font-medium text-text transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2
+        @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm
+        font-medium text-text transition-colors focus-visible:outline focus-visible:outline-2
         focus-visible:outline-offset-2 focus-visible:outline-accent;
+        border: 1px solid rgb(var(--border));
+        background-color: rgb(var(--surface-elevated) / 0.7);
     }
 
-    /* Preloader progress sweep - a soft bar of light passing left to right,
-     * looped for as long as the preloader is visible. */
+    .btn-secondary:hover {
+        background-color: rgb(var(--hover-fill) / var(--hover-fill-a));
+        border-color: rgb(var(--gold) / 0.45);
+    }
+
+    .icon-btn {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-text transition-colors
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
+        border: 1px solid rgb(var(--border) / 0.9);
+        background-color: rgb(var(--surface) / 0.7);
+        color: rgb(var(--gold));
+    }
+
+    .icon-btn:hover {
+        background-color: rgb(var(--hover-fill) / var(--hover-fill-a));
+        border-color: rgb(var(--gold) / 0.5);
+    }
+
+    .skip-link {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .skip-link:focus {
+        position: fixed;
+        left: 1rem;
+        top: 1rem;
+        z-index: 300;
+        width: auto;
+        height: auto;
+        margin: 0;
+        clip: auto;
+        overflow: visible;
+        white-space: normal;
+        border-radius: 9999px;
+        background-color: rgb(var(--primary));
+        color: #fff;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        outline: 2px solid rgb(var(--gold));
+        outline-offset: 2px;
+    }
+
     .loader-sweep {
         animation: loader-sweep 1.1s ease-in-out infinite;
     }
@@ -158,6 +284,74 @@
         }
         100% {
             transform: translateX(320%);
+        }
+    }
+
+    .tech-chip {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] text-text;
+        border: 1px solid rgb(var(--chip-bg) / var(--chip-border-a));
+        background-color: rgb(var(--chip-bg) / var(--chip-bg-a));
+    }
+
+    .soft-hairline {
+        border-color: rgb(var(--hairline) / var(--hairline-a));
+    }
+
+    .nav-link {
+        @apply rounded-full px-3 py-2 text-sm text-muted transition-colors;
+    }
+
+    .nav-link:hover {
+        color: rgb(var(--text));
+        background-color: rgb(var(--hover-fill) / var(--hover-fill-a));
+    }
+
+    .service-visual-frame {
+        @apply relative -mx-4 -mt-4 mb-4 h-32 overflow-hidden rounded-t-2xl sm:-mx-6 sm:-mt-6 sm:h-36;
+        background: linear-gradient(
+            160deg,
+            rgb(var(--surface-elevated) / 0.98),
+            rgb(var(--background) / 1)
+        );
+        box-shadow:
+            inset 0 -1px 0 0 rgb(var(--gold) / 0.18),
+            inset 0 0 0 1px rgb(var(--gold) / 0.08);
+    }
+
+    [data-theme="light"] .service-visual-frame {
+        background: linear-gradient(
+            165deg,
+            rgb(255 252 248 / 1),
+            rgb(240 230 214 / 0.95)
+        );
+        box-shadow:
+            inset 0 -1px 0 0 rgb(var(--gold) / 0.28),
+            inset 0 0 0 1px rgb(var(--gold) / 0.14);
+    }
+
+    .site-nav-scrolled {
+        background-color: rgb(var(--background) / 0.82);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 1px 0 0 rgb(var(--gold) / 0.18);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .hero-reveal {
+            opacity: 0;
+        }
+
+        .hero-scroll-cue {
+            animation: hero-scroll-bob 2.4s ease-in-out 1.4s infinite;
+        }
+    }
+
+    @keyframes hero-scroll-bob {
+        0%,
+        100% {
+            transform: translate(-50%, 0);
+        }
+        50% {
+            transform: translate(-50%, 6px);
         }
     }
 }

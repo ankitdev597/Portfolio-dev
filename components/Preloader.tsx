@@ -7,28 +7,40 @@ import { profile } from "@/data/profile";
 
 const PreloaderScene = dynamic(() => import("@/components/PreloaderScene"), { ssr: false });
 
-// Held on screen for at least this long even if the page loads instantly,
-// so the preloader reads as an intentional brand moment rather than a
-// one-frame flash on a fast connection.
-const MIN_VISIBLE_MS = 1100;
+const MIN_VISIBLE_MS = 750;
+const MAX_VISIBLE_MS = 1800;
 
 /**
- * Full-screen loading screen shown on every hard navigation/refresh.
- * Renders visible by default (no client-only gate needed - there's
- * nothing here that depends on a browser API to decide the *initial*
- * render), then fades itself out once the window has fully loaded and
- * the minimum on-screen duration has elapsed.
+ * Brand loading screen. Uses a CSS fallback on coarse pointers / reduce-motion /
+ * Save-Data so mobile devices are not charged a WebGL cost for a brief splash.
  */
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
+  const [useScene, setUseScene] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const mountedAtRef = useRef(0);
+  const hiddenRef = useRef(false);
 
   useEffect(() => {
     mountedAtRef.current = performance.now();
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const saveData =
+      typeof navigator !== "undefined" &&
+      "connection" in navigator &&
+      Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
+
+    // Client-only capability check — must run after mount (matchMedia /
+    // navigator.connection are unavailable during SSR).
+    if (!prefersReducedMotion && !coarsePointer && !saveData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUseScene(true);
+    }
 
     function hide() {
+      if (hiddenRef.current) return;
+      hiddenRef.current = true;
+
       const el = containerRef.current;
       if (!el || prefersReducedMotion) {
         setVisible(false);
@@ -36,7 +48,7 @@ export default function Preloader() {
       }
       gsap.to(el, {
         opacity: 0,
-        duration: 0.5,
+        duration: 0.35,
         ease: "power2.out",
         onComplete: () => setVisible(false),
       });
@@ -48,13 +60,18 @@ export default function Preloader() {
       window.setTimeout(hide, remaining);
     }
 
-    if (document.readyState === "complete") {
+    if (document.readyState === "complete" || document.readyState === "interactive") {
       scheduleHide();
-      return;
+    } else {
+      document.addEventListener("DOMContentLoaded", scheduleHide, { once: true });
     }
 
-    window.addEventListener("load", scheduleHide, { once: true });
-    return () => window.removeEventListener("load", scheduleHide);
+    const maxTimer = window.setTimeout(hide, MAX_VISIBLE_MS);
+
+    return () => {
+      document.removeEventListener("DOMContentLoaded", scheduleHide);
+      window.clearTimeout(maxTimer);
+    };
   }, []);
 
   if (!visible) return null;
@@ -65,12 +82,24 @@ export default function Preloader() {
       role="status"
       aria-live="polite"
       aria-label="Loading"
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-background"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-5 bg-background"
     >
-      <div className="h-40 w-full max-w-md sm:h-52">
-        <PreloaderScene />
+      <div className="flex h-36 w-full max-w-sm items-center justify-center sm:h-44">
+        {useScene ? (
+          <div className="h-full w-full">
+            <PreloaderScene />
+          </div>
+        ) : (
+          <div
+            className="flex h-24 w-24 items-center justify-center rounded-full border border-primary/25 bg-primary/5"
+            aria-hidden="true"
+          >
+            <span className="h-10 w-10 rounded-full border-2 border-primary/50 border-t-transparent motion-safe:animate-spin" />
+          </div>
+        )}
       </div>
-      <div className="h-px w-28 overflow-hidden rounded-full bg-white/10">
+      <p className="text-lg font-semibold tracking-wide text-text sm:text-xl">{profile.fullName}</p>
+      <div className="h-px w-28 overflow-hidden rounded-full bg-gold/20" aria-hidden="true">
         <div className="loader-sweep h-full w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent" />
       </div>
       <span className="sr-only">Loading {profile.fullName}&apos;s portfolio…</span>

@@ -22,8 +22,9 @@ export function scrollToSection(id: string) {
   if (!target) return;
 
   if (instance) {
-    instance.scrollTo(target, { offset: -88, duration: 1.4 });
+    instance.scrollTo(target, { offset: -88, duration: 1.15 });
   } else {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const top = target.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top, behavior: "smooth" });
   }
 }

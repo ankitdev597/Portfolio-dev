@@ -1,41 +1,41 @@
 import { experience } from "@/data/experience";
 import Reveal from "@/components/Reveal";
-
-function formatDate(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" }).toUpperCase();
-}
+import { formatMonthYear } from "@/lib/format-date";
 
 export default function Experience() {
   return (
     <section id="experience" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <Reveal>
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             Experience
-          </p>
+          </h2>
           <span className="divider-premium" />
         </Reveal>
 
-        <ol className="relative mt-14 space-y-8 border-l border-white/10 pl-8">
+        <ol className="soft-hairline relative mt-14 space-y-8 border-l pl-8">
           {experience.map((entry, i) => (
-            <Reveal key={entry.roleTitle + entry.companyName} delay={i * 0.08}>
-              <li className="relative">
-                <span className="absolute -left-[2.35rem] top-1.5 h-3 w-3 rounded-full border-2 border-background bg-primary shadow-[0_0_0_4px_rgb(220_38_38/0.15)]" />
+            <li key={entry.roleTitle + entry.companyName} className="relative">
+              <span className="absolute -left-[2.35rem] top-1.5 h-3 w-3 rounded-full border-2 border-background bg-gold shadow-[0_0_0_4px_rgb(var(--gold)/0.2)]" />
 
-                <div className="glass-panel p-5 sm:p-6">
+              <Reveal delay={i * 0.06}>
+                <div className="glass-panel card-depth p-5 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-lg font-semibold text-text">{entry.roleTitle}</h3>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                    <span className="tech-chip !px-3 text-[10px] font-semibold uppercase tracking-wide text-muted">
                       {entry.employmentTypeLabel}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-primary">
+                  <p className="mt-1 text-sm text-gold">
                     {entry.companyName} <span className="text-muted">· {entry.location}</span>
                   </p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-muted">
-                    {formatDate(entry.startDate)} —{" "}
-                    {entry.isCurrent ? "Present" : entry.endDate ? formatDate(entry.endDate) : ""}
+                    {formatMonthYear(entry.startDate)} —{" "}
+                    {entry.isCurrent
+                      ? "Present"
+                      : entry.endDate
+                        ? formatMonthYear(entry.endDate)
+                        : ""}
                   </p>
 
                   <ul className="mt-4 space-y-2">
@@ -44,14 +44,14 @@ export default function Experience() {
                         key={bullet}
                         className="flex gap-2.5 text-sm leading-relaxed text-muted"
                       >
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary/70" />
+                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold/70" />
                         <span>{bullet}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-              </li>
-            </Reveal>
+              </Reveal>
+            </li>
           ))}
         </ol>
       </div>
