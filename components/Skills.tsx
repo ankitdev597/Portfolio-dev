@@ -1,83 +1,55 @@
 "use client";
 
-import { skillCategories, type SkillIconKey } from "@/data/skills";
-import Reveal from "@/components/Reveal";
+import { skillCategories } from "@/data/skills";
 import Section from "@/components/Section";
 import SectionHeading from "@/components/SectionHeading";
 import BrandIcon from "@/components/BrandIcon";
-import {
-  Code2,
-  LayoutGrid,
-  Server,
-  Database,
-  Cloud,
-  Sparkles,
-  Box,
-  Wrench,
-  type LucideIcon,
-} from "@/components/icons";
+import Marquee, { MARQUEE_SPEED, MARQUEE_SPEED_SLOW } from "@/components/Marquee";
 
-const SKILL_ICONS: Record<SkillIconKey, LucideIcon> = {
-  code: Code2,
-  frontend: LayoutGrid,
-  backend: Server,
-  database: Database,
-  cloud: Cloud,
-  ai: Sparkles,
-  creative: Box,
-  tools: Wrench,
-};
+/** Flatten unique skill labels across categories (preserve first-seen order). */
+const allSkills = Array.from(
+  new Set(skillCategories.flatMap((category) => category.skills)),
+);
 
-/** Always-visible skill chips — brand logos where verified, labels always shown. */
+const midpoint = Math.ceil(allSkills.length / 2);
+const rowA = allSkills.slice(0, midpoint);
+const rowB = allSkills.slice(midpoint);
+
+function SkillChip({ name }: { name: string }) {
+  return (
+    <span className="marquee-chip">
+      <BrandIcon name={name} className="h-4 w-4 shrink-0" />
+      <span>{name}</span>
+    </span>
+  );
+}
+
+/** Infinite AssistBee-style skill ticker — same px/s pace as DevOps. */
 export default function Skills() {
   return (
     <Section id="skills">
       <SectionHeading
         eyebrow="Skills"
-        description="A production toolkit across languages, frameworks, cloud, and AI — organized the way I actually ship."
+        description="A production toolkit across languages, frameworks, cloud, and AI — scrolling continuously."
       />
 
-      <div className="section-card-grid-2">
-        {skillCategories.map((category, i) => {
-          const Icon = SKILL_ICONS[category.icon];
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <Marquee ariaLabel="Skills row one" speed={MARQUEE_SPEED} repeat={3}>
+          {rowA.map((skill) => (
+            <SkillChip key={skill} name={skill} />
+          ))}
+        </Marquee>
 
-          return (
-            <Reveal key={category.name} delay={(i % 2) * 0.05} className="h-full">
-              <article className="glass-panel card-depth group flex h-full min-h-[24rem] flex-col p-5 sm:min-h-[26rem] sm:p-6">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 text-gold transition-transform duration-300 group-hover:scale-105">
-                    <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug text-text sm:min-h-[3rem] sm:text-lg">
-                      {category.name}
-                    </h3>
-                    <p className="text-xs text-muted sm:text-sm">
-                      {category.skills.length} skills
-                    </p>
-                  </div>
-                </div>
-
-                <p className="mt-4 line-clamp-2 min-h-[2.75rem] text-sm leading-relaxed text-muted">
-                  {category.summary}
-                </p>
-
-                <ul className="mt-5 flex min-h-[6.5rem] flex-1 flex-wrap content-start gap-1.5">
-                  {category.skills.map((skill) => (
-                    <li key={skill} className="tech-chip">
-                      <BrandIcon name={skill} className="h-3.5 w-3.5 shrink-0" />
-                      <span>{skill}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="soft-hairline mt-auto border-t pt-4 text-xs font-medium text-muted">
-                  Production-ready stack
-                </div>
-              </article>
-            </Reveal>
-          );
-        })}
+        <Marquee
+          ariaLabel="Skills row two"
+          speed={MARQUEE_SPEED_SLOW}
+          reverse
+          repeat={3}
+        >
+          {rowB.map((skill) => (
+            <SkillChip key={skill} name={skill} />
+          ))}
+        </Marquee>
       </div>
     </Section>
   );

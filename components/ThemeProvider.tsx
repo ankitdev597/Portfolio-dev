@@ -30,7 +30,8 @@ function readTheme(): Theme {
   if (typeof window === "undefined") return "dark";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  // Premium Crimson Noir default — light only when the user opts in.
+  return "dark";
 }
 
 let currentTheme: Theme = "dark";

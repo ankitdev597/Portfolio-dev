@@ -5,6 +5,9 @@ export interface EducationEntry {
   startDate: string;
   endDate: string | null;
   isCurrent: boolean;
+  /** Official institution website */
+  url: string;
+  logo: string;
 }
 
 export const education: EducationEntry[] = [
@@ -15,6 +18,8 @@ export const education: EducationEntry[] = [
     startDate: "2025-07-01",
     endDate: null,
     isCurrent: true,
+    url: "https://www.mcsgoc.com/",
+    logo: "/images/orgs/mcsgoc-logo.png",
   },
   {
     degree: "Diploma, Computer Science & Engineering",
@@ -23,5 +28,7 @@ export const education: EducationEntry[] = [
     startDate: "2018-07-01",
     endDate: "2022-07-01",
     isCurrent: false,
+    url: "https://gpmkheri.in/",
+    logo: "/images/orgs/gpmkheri-logo.png",
   },
 ];

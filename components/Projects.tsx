@@ -6,6 +6,7 @@ import Section from "@/components/Section";
 import SectionHeading from "@/components/SectionHeading";
 import ProjectCard from "@/components/ProjectCard";
 import LoadMoreGrid from "@/components/LoadMoreGrid";
+import Marquee, { MARQUEE_SPEED } from "@/components/Marquee";
 
 export default function Projects() {
   const featured = projects.filter((p) => p.featured);
@@ -15,7 +16,7 @@ export default function Projects() {
     <Section id="projects">
       <SectionHeading
         eyebrow="Projects"
-        description="Selected product work across SaaS, AI, fintech, and operations — equal card rhythm, clear tech, and direct links where available."
+        description="Featured work leads with live product screenshots where available — Colossians Cleaning first. When a capture isn’t possible, cards use a clearly labeled category preview so nothing looks broken."
       />
 
       {featured.length > 0 && (
@@ -25,13 +26,25 @@ export default function Projects() {
               Featured
             </h3>
           </Reveal>
-          <div className="section-card-grid-2 !mt-0">
-            {featured.map((project, i) => (
-              <Reveal key={project.slug} delay={(i % 2) * 0.05} className="h-full">
-                <ProjectCard project={project} />
-              </Reveal>
+
+          {/*
+            Skills-style infinite ticker: translateX(-50%) loop — no rewind
+            jump when the list ends. Same px/s pace as Skills / DevOps.
+          */}
+          <Marquee
+            ariaLabel="Featured projects"
+            speed={MARQUEE_SPEED}
+            repeat={2}
+            className="marquee-wrapper--cards !mt-0"
+          >
+            {featured.map((project) => (
+              <div key={project.slug} className="marquee-card h-auto">
+                <div className="h-full">
+                  <ProjectCard project={project} />
+                </div>
+              </div>
             ))}
-          </div>
+          </Marquee>
         </div>
       )}
 

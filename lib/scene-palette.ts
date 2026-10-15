@@ -11,11 +11,11 @@ export const SCENE = {
   accent: "#C4A26E",
   text: "#E8E4DE",
   muted: "#8C847C",
-  gold: "#C4A26E",
-  /** Hero particles — dark theme (additive) */
+  gold: "#DCBC80",
+  /** Hero particles — dark theme (muted brass, less glare) */
   particleBrass: "#C4A26E",
-  particlePearl: "#D4CBBE",
-  particleRose: "#8E4A52",
+  particlePearl: "#D8CDB8",
+  particleRose: "#A87868",
   /** Hero particles — light theme (opaque gold on ivory) */
   particleBrassLight: "#A87C3E",
   particlePearlLight: "#8B6B3D",

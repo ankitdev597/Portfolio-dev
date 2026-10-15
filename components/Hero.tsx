@@ -96,15 +96,15 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"
       >
-        <div className="absolute right-[-2%] top-[8%] h-[640px] w-[640px] rounded-full bg-gold/[0.08] blur-[140px]" />
-        <div className="absolute bottom-[8%] right-[12%] h-[460px] w-[460px] rounded-full bg-primary/[0.05] blur-[110px]" />
-        <div className="absolute left-[-8%] top-[22%] h-[360px] w-[360px] rounded-full bg-gold/[0.05] blur-[100px]" />
+        <div className="absolute right-[-2%] top-[8%] h-[640px] w-[640px] rounded-full bg-gold/[0.045] blur-[140px]" />
+        <div className="absolute bottom-[8%] right-[12%] h-[460px] w-[460px] rounded-full bg-primary/[0.035] blur-[110px]" />
+        <div className="absolute left-[-8%] top-[22%] h-[360px] w-[360px] rounded-full bg-gold/[0.03] blur-[100px]" />
       </div>
 
-      {/* Particle sphere — right side on desktop, dimmed behind copy on mobile */}
+      {/* Particle sphere ? right side on desktop, dimmed behind copy on mobile */}
       <div
         data-hero="art"
-        className="hero-reveal absolute inset-y-0 right-0 top-0 z-[2] flex h-full w-full items-center justify-center max-lg:opacity-[0.18] lg:w-[55%] lg:opacity-90"
+        className="hero-reveal absolute inset-y-0 right-0 top-0 z-[2] flex h-full w-full items-center justify-center max-lg:opacity-[0.16] lg:w-[55%] lg:opacity-80"
         style={{ overflow: "visible" }}
         aria-hidden="true"
       >

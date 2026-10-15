@@ -8,6 +8,11 @@ export interface ExperienceEntry {
   endDate: string | null;
   isCurrent: boolean;
   bullets: string[];
+  /** Official company website */
+  companyUrl: string;
+  logo: string;
+  /** Logo mark sits on dark plate (white/light marks) vs white plate. */
+  logoOnDark?: boolean;
 }
 
 export const experience: ExperienceEntry[] = [
@@ -20,6 +25,9 @@ export const experience: ExperienceEntry[] = [
     startDate: "2022-06-01",
     endDate: null,
     isCurrent: true,
+    companyUrl: "https://www.jamtechtechnologies.com/",
+    logo: "/images/orgs/jamtech-logo.png",
+    logoOnDark: true,
     bullets: [
       "Build and ship full-stack applications across the MERN and MEAN stacks plus Laravel/PHP, delivering scalable features on AWS (EC2, SES, SNS).",
       "Integrate OpenAI and third-party LLM APIs into product features, including real-time AI chat over WebSockets.",
@@ -39,6 +47,8 @@ export const experience: ExperienceEntry[] = [
     startDate: "2022-04-01",
     endDate: "2022-06-01",
     isCurrent: false,
+    companyUrl: "https://www.softproindia.in/",
+    logo: "/images/orgs/softpro-logo.png",
     bullets: [
       "Completed an intensive full-stack web development apprenticeship covering HTML, CSS, JavaScript, and Oracle Database fundamentals.",
       "Assisted senior development teams building backend components in Java and Python.",

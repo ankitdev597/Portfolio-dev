@@ -35,32 +35,39 @@ export default function Contact() {
             {profile.email}
           </a>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href={profile.phoneHref}
-              className="btn-primary"
-              aria-label={`Call ${profile.phone}`}
-            >
-              Call Now
-            </a>
-            <a href={`mailto:${profile.email}`} className="btn-secondary">
-              Email Me
-            </a>
-
-            {socialLinks.map((link) => (
+          <div className="mt-10 flex flex-col items-center gap-5">
+            <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
               <a
-                key={link.platform}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={link.label}
-                className="btn-secondary !px-4"
+                href={profile.phoneHref}
+                className="btn-primary contact-orb-primary min-w-[9.5rem]"
+                aria-label={`Call ${profile.phone}`}
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-                  <path d={ICONS[link.platform]} />
-                </svg>
+                Call Now
               </a>
-            ))}
+              <a
+                href={`mailto:${profile.email}`}
+                className="btn-secondary contact-orb-secondary min-w-[9.5rem]"
+              >
+                Email Me
+              </a>
+            </div>
+
+            <div className="flex items-center justify-center gap-3">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={link.label}
+                  className="contact-orb-social"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                    <path d={ICONS[link.platform]} />
+                  </svg>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </Reveal>

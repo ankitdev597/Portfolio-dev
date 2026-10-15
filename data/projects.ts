@@ -29,6 +29,18 @@ export interface Project {
   /** A second live link worth surfacing (e.g. a companion admin/author panel). */
   secondaryUrl?: string;
   secondaryLabel?: string;
+  /** Homepage / primary UI screenshot under /public */
+  image?: string;
+  /**
+   * How to label `image`. Defaults to "screenshot" when `image` is set.
+   * Use "representative" only for non-live placeholder art — never pass stock
+   * art off as a real website capture.
+   */
+  imageKind?: "screenshot" | "representative";
+  /** Optional extra screenshots */
+  gallery?: string[];
+  /** Short bullets shown on featured cards when present */
+  features?: string[];
 }
 
 /**
@@ -36,6 +48,30 @@ export interface Project {
  * cards read evenly in the grid and stay aligned with each project name.
  */
 export const projects: Project[] = [
+  {
+    title: "Colossians Cleaning Services — Portal & Admin CRM",
+    slug: "colossians-cleaning-care-services-platform",
+    description:
+      "UK cleaning operations platform: client/staff portal entry plus a full admin CRM for jobs, customers, cleaners, scheduling, invoices, and payroll.",
+    featured: true,
+    technologies: ["React.js", "Node.js", "Laravel", "MySQL", "REST APIs"],
+    icon: "care",
+    liveUrl: "https://app.colossianscleaningservices.com/",
+    githubUrl: null,
+    secondaryUrl: "https://crm.colossianscareservices.co.uk",
+    secondaryLabel: "Admin CRM",
+    image: "/images/projects/colossians-portal.jpg",
+    imageKind: "screenshot",
+    gallery: [
+      "/images/projects/colossians-portal.jpg",
+      "/images/projects/colossians-admin-dashboard.png",
+    ],
+    features: [
+      "Client vs staff portal selection with multi-step sign-in",
+      "Admin dashboard: jobs, customers, cleaners, properties",
+      "Scheduling, invoices, work hours & pay (STARS staff app)",
+    ],
+  },
   {
     title: "E-Commerce Checkout & Wallet Platform",
     slug: "e-commerce-checkout-wallet-platform",
@@ -68,6 +104,13 @@ export const projects: Project[] = [
     icon: "ai-chat",
     liveUrl: "https://sentimenter.ai/",
     githubUrl: null,
+    image: "/images/projects/sentimenter-ai.png",
+    imageKind: "screenshot",
+    features: [
+      "Agentic CX workspace for feedback, reviews, and NPS signals",
+      "Customer-pulse dashboard with sentiment score and trends",
+      "Collect → explain → assign action workflow on the marketing site",
+    ],
   },
   {
     title: "TovaPulse - Health & Wellness App",
@@ -77,74 +120,109 @@ export const projects: Project[] = [
     featured: true,
     technologies: ["Laravel", "MySQL", "Firebase", "OpenAI API", "Agora"],
     icon: "health",
-    liveUrl: null,
+    liveUrl: "https://tovapulse.com/",
     githubUrl: null,
+    image: "/images/projects/tovapulse.png",
+    imageKind: "screenshot",
+    features: [
+      "Health intelligence from consumer app through admin console",
+      "Pulse overview with signal quality and wearable sync status",
+      "AI insights and audit-stream positioning for operators",
+    ],
   },
   {
     title: "Keystone FM - Facilities Management CRM",
     slug: "keystone-fm-facilities-management-crm",
     description:
       "Facilities management CRM for a UK cleaning company — public site plus super-admin tools for requests, clients, and operations.",
-    featured: false,
+    featured: true,
     technologies: ["Angular", "Node.js", "Express.js", "MySQL"],
     icon: "facilities",
-    liveUrl: "https://www.keystonefm.co.uk/",
+    liveUrl: "https://crm.keystonefm.co.uk/login",
     githubUrl: null,
-  },
-  {
-    title: "Colossians Cleaning & Care Services - Client Portal & CRM",
-    slug: "colossians-cleaning-care-services-platform",
-    description:
-      "Cleaning and care services portal with client/staff login, booking flows, and a separate CRM for scheduling and role-based access.",
-    featured: false,
-    technologies: ["React.js", "Node.js", "Laravel", "MySQL"],
-    icon: "care",
-    liveUrl: "https://app.colossianscleaningservices.com/",
-    githubUrl: null,
+    secondaryUrl: "https://www.keystonefm.co.uk/",
+    secondaryLabel: "Public site",
+    image: "/images/projects/keystone-fm.png",
+    imageKind: "screenshot",
+    features: [
+      "ERP portal login for facilities management access",
+      "Secure sign-in with remember-me and password recovery",
+      "Public marketing site plus CRM operations tooling",
+    ],
   },
   {
     title: "Nollywood Verified - Talent & Casting Platform",
     slug: "nollywood-verified-talent-network",
     description:
       "Talent and casting platform connecting verified cast, crew, and producers with identity checks and casting-call workflows.",
-    featured: false,
+    featured: true,
     technologies: ["React.js", "Node.js", "MongoDB", "AWS SES"],
     icon: "casting",
     liveUrl: "https://nollywoodverified.com/",
     githubUrl: null,
+    image: "/images/projects/nollywood-verified.png",
+    imageKind: "screenshot",
+    features: [
+      "Cast / crew discovery with verified real-person profiles",
+      "Join and login flows for talent and hiring teams",
+      "Nigeria + diaspora positioning with casting workflows",
+    ],
   },
   {
     title: "SwapCircle - Trading Platform Admin Portal",
     slug: "swapcircle-trading-platform-admin-portal",
     description:
       "Trading platform admin portal with activity dashboards and user management for monitoring day-to-day platform operations.",
-    featured: false,
+    featured: true,
     technologies: ["React.js", "Node.js", "Express.js", "MongoDB"],
     icon: "trading",
-    liveUrl: "https://portal.swapcircle.trade/admin",
+    liveUrl: "https://swapcircle.trade/",
     githubUrl: null,
+    secondaryUrl: "https://portal.swapcircle.trade/admin",
+    secondaryLabel: "Admin portal",
+    image: "/images/projects/swapcircle.png",
+    imageKind: "screenshot",
+    features: [
+      "Community exchange platform for diaspora coverage and services",
+      "Plan selection, sign-in, and onboarding CTAs on the public site",
+      "Admin portal entry for day-to-day platform operations",
+    ],
   },
   {
     title: "SOW Finance - Fintech Web Application",
     slug: "sow-finance-fintech-web-application",
     description:
       "Fintech web application for secure bank-account connections via Plaid, with polished front-end flows and backend API integration.",
-    featured: false,
+    featured: true,
     technologies: ["React.js", "Node.js", "MySQL", "AWS"],
     icon: "finance",
     liveUrl: "https://www.sow.finance/",
     githubUrl: null,
+    image: "/images/projects/sow-finance.png",
+    imageKind: "screenshot",
+    features: [
+      "Creator workspace with balance, growth, and credit metrics",
+      "Early payout CTA and earnings trend visualization",
+      "Integrations positioning for TikTok, YouTube, Twitch, and more",
+    ],
   },
   {
     title: "Shakti Travels & Tours - Booking Website",
     slug: "shakti-travels-tours-booking-platform",
     description:
       "Travel and tours booking website for a multi-vehicle fleet — service listings, tour packages, and customer enquiry handling.",
-    featured: false,
+    featured: true,
     technologies: ["PHP", "Laravel", "MySQL", "jQuery"],
     icon: "travel",
-    liveUrl: "http://shaktitravelsandtours.com/",
+    liveUrl: "https://shaktitravelsandtours.com/",
     githubUrl: null,
+    image: "/images/projects/shakti-travels.png",
+    imageKind: "screenshot",
+    features: [
+      "Premium car rentals, corporate travel, and pilgrimage tours",
+      "Services, driver registration, and contact CTAs",
+      "Pan-India coverage messaging with fleet-focused hero",
+    ],
   },
   {
     title: "Turf Booking - Cricket & Football Slot Reservations",
@@ -228,12 +306,23 @@ export const projects: Project[] = [
     slug: "akatibird-business-hub-platform",
     description:
       "Business hub platform with multilingual e-commerce, meeting scheduling, and an author panel for managing site content.",
-    featured: false,
+    featured: true,
     technologies: ["Next.js", "TypeScript", "Laravel", "MySQL"],
     icon: "business",
     liveUrl: "https://akatibird.com/en",
     githubUrl: null,
     secondaryUrl: "https://author.akatibird.com/",
     secondaryLabel: "Author panel",
+    image: "/images/projects/akatibird.png",
+    imageKind: "screenshot",
+    gallery: [
+      "/images/projects/akatibird.png",
+      "/images/projects/akatibird-author.png",
+    ],
+    features: [
+      "Multilingual reading hub with search and discover CTAs",
+      "App Store / Google Play download entry points",
+      "Author panel sign-in for content management",
+    ],
   },
 ];

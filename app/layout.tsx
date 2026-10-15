@@ -8,13 +8,14 @@ import CookieConsent from "@/components/CookieConsent";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SITE_URL } from "@/lib/site-url";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ankitvishwakarma.dev";
+const siteUrl = SITE_URL;
 
 /** Existing on-site asset suitable for social previews (profile headshot). */
 const ogImagePath = "/images/profile-photo.jpg";
 
-const themeInitScript = `(function(){try{var k='portfolio-theme';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.setAttribute('data-theme','dark');document.documentElement.style.colorScheme='dark';}})();`;
+const themeInitScript = `(function(){try{var k='portfolio-theme';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t='dark';}document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.setAttribute('data-theme','dark');document.documentElement.style.colorScheme='dark';}})();`;
 
 export const viewport: Viewport = {
   themeColor: [

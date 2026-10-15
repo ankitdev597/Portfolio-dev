@@ -11,10 +11,11 @@ const LINKS = [
   { id: "skills", label: "Skills" },
   { id: "experience", label: "Experience" },
   { id: "education", label: "Education" },
+  { id: "training", label: "Training" },
   { id: "devops", label: "DevOps" },
   { id: "projects", label: "Projects" },
   { id: "services", label: "Services" },
-  { id: "share", label: "Share & QR" },
+  { id: "share", label: "Resume QR" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -135,8 +136,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-[background-color,backdrop-filter,box-shadow] duration-300 ${
-        scrolled || menuOpen ? "site-nav-scrolled" : ""
+      className={`fixed inset-x-0 top-0 z-50 isolate bg-[rgb(var(--nav-bg))] transition-[box-shadow,border-color] duration-300 ${
+        scrolled || menuOpen ? "site-nav-scrolled" : "site-nav-top"
       }`}
     >
       <nav

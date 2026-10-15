@@ -1,39 +1,55 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { profile } from "@/data/profile";
 import { getLenisInstance } from "@/lib/lenis-singleton";
 import { unlockPageScroll } from "@/lib/unlock-scroll";
 
-/** Premium pacing — long enough to feel intentional, never endless. */
+const PreloaderScene = dynamic(() => import("@/components/PreloaderScene"), {
+  ssr: false,
+  loading: () => null,
+});
+
+/** Premium pacing — intentional robotic boot, never endless. */
 const MIN_DURATION_MS = 2400;
 const MAX_DURATION_MS = 4800;
 
 /**
- * Cinematic brand loader: GSAP-driven 0→100% counter + gold progress rail,
- * then a boom reveal. 3D orb lives full-screen on the hero — not here.
+ * Dark Crimson Noir robotic boot: 3D wireframe + GSAP progress,
+ * then curtain reveal. Preserves hash / scroll so you land on the
+ * same section you opened.
  */
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
   const [percent, setPercent] = useState(0);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const robotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
   const brandRef = useRef<HTMLParagraphElement>(null);
+  const labelRef = useRef<HTMLParagraphElement>(null);
   const percentRef = useRef<HTMLSpanElement>(null);
   const barFillRef = useRef<HTMLDivElement>(null);
-  const spinRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLParagraphElement>(null);
+  const barTrackRef = useRef<HTMLDivElement>(null);
 
   const progressProxy = useRef({ value: 0 });
   const loadDoneRef = useRef(false);
-  const boomStartedRef = useRef(false);
+  const exitStartedRef = useRef(false);
   const mountedAtRef = useRef(0);
+  const restoreTargetRef = useRef<{ hash: string; y: number }>({ hash: "", y: 0 });
 
   useEffect(() => {
     mountedAtRef.current = performance.now();
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    restoreTargetRef.current = {
+      hash: window.location.hash || "",
+      y: window.scrollY || 0,
+    };
 
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
@@ -41,29 +57,38 @@ export default function Preloader() {
     getLenisInstance()?.stop();
 
     const root = rootRef.current;
+    const content = contentRef.current;
+    const robot = robotRef.current;
+    const ring = ringRef.current;
     const brand = brandRef.current;
-    const bar = barFillRef.current;
-    const spin = spinRef.current;
     const label = labelRef.current;
+    const bar = barFillRef.current;
+    const barTrack = barTrackRef.current;
     const pctEl = percentRef.current;
 
-    if (!prefersReducedMotion && root) {
+    if (root) gsap.set(root, { opacity: 1 });
+
+    let ringTween: gsap.core.Tween | null = null;
+
+    if (!prefersReducedMotion && content) {
+      gsap.set([robot, brand, label, pctEl, barTrack], { opacity: 0, y: 16 });
+      if (ring) gsap.set(ring, { rotation: 0 });
+
       const tlIn = gsap.timeline({ defaults: { ease: "power3.out" } });
       tlIn
-        .fromTo(root, { opacity: 0 }, { opacity: 1, duration: 0.4 })
-        .fromTo(
-          brand,
-          { opacity: 0, y: 24, filter: "blur(8px)" },
-          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8 },
-          0.12,
-        )
-        .fromTo(label, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5 }, 0.28)
-        .fromTo(
-          [spin, pctEl, bar?.parentElement],
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.55, stagger: 0.06 },
-          0.22,
-        );
+        .to(robot, { opacity: 1, y: 0, duration: 0.7 }, 0.05)
+        .to(brand, { opacity: 1, y: 0, duration: 0.65 }, 0.2)
+        .to(label, { opacity: 1, y: 0, duration: 0.5 }, 0.32)
+        .to([pctEl, barTrack], { opacity: 1, y: 0, duration: 0.5, stagger: 0.05 }, 0.4);
+
+      if (ring) {
+        ringTween = gsap.to(ring, {
+          rotation: 360,
+          duration: 8,
+          ease: "none",
+          repeat: -1,
+        });
+      }
     }
 
     function setProgressVisual(value: number) {
@@ -75,7 +100,7 @@ export default function Preloader() {
 
     const progressTween = gsap.to(progressProxy.current, {
       value: 92,
-      duration: prefersReducedMotion ? 0.55 : 3.0,
+      duration: prefersReducedMotion ? 0.5 : 2.6,
       ease: "power1.out",
       onUpdate: () => setProgressVisual(progressProxy.current.value),
     });
@@ -94,7 +119,7 @@ export default function Preloader() {
     if (document.readyState === "interactive" || document.readyState === "complete") {
       gsap.to(progressProxy.current, {
         value: Math.max(progressProxy.current.value, 55),
-        duration: 0.7,
+        duration: 0.6,
         ease: "power2.out",
         overwrite: false,
         onUpdate: () => setProgressVisual(progressProxy.current.value),
@@ -107,83 +132,87 @@ export default function Preloader() {
     }, MAX_DURATION_MS);
 
     function tryFinish() {
-      if (!loadDoneRef.current || boomStartedRef.current) return;
+      if (!loadDoneRef.current || exitStartedRef.current) return;
 
       const elapsed = performance.now() - mountedAtRef.current;
       const wait = Math.max(MIN_DURATION_MS - elapsed, 0);
 
       window.setTimeout(() => {
-        if (boomStartedRef.current) return;
-        boomStartedRef.current = true;
+        if (exitStartedRef.current) return;
+        exitStartedRef.current = true;
         progressTween.kill();
+        ringTween?.kill();
 
         gsap.to(progressProxy.current, {
           value: 100,
-          duration: prefersReducedMotion ? 0.2 : 0.5,
+          duration: prefersReducedMotion ? 0.15 : 0.35,
           ease: "power2.inOut",
           onUpdate: () => setProgressVisual(progressProxy.current.value),
-          onComplete: () => runBoom(prefersReducedMotion),
+          onComplete: () => runExit(prefersReducedMotion),
         });
       }, wait);
     }
 
+    function restoreViewport() {
+      const { hash, y } = restoreTargetRef.current;
+      const lenis = getLenisInstance();
+
+      if (hash) {
+        const id = hash.replace(/^#/, "");
+        const el = id ? document.getElementById(id) : null;
+        if (el) {
+          if (lenis) {
+            lenis.scrollTo(el, { immediate: true });
+          } else {
+            el.scrollIntoView({ behavior: "auto", block: "start" });
+          }
+          return;
+        }
+      }
+
+      if (y > 0) {
+        if (lenis) lenis.scrollTo(y, { immediate: true });
+        else window.scrollTo(0, y);
+      }
+    }
+
     function finishLoader() {
       unlockPageScroll();
+      restoreViewport();
       setVisible(false);
     }
 
-    function runBoom(reduce: boolean) {
+    function runExit(reduce: boolean) {
       const el = rootRef.current;
-      const flash = flashRef.current;
+      const panel = panelRef.current;
       if (!el) {
         finishLoader();
         return;
       }
 
       if (reduce) {
-        gsap.to(el, {
-          opacity: 0,
-          duration: 0.25,
-          onComplete: finishLoader,
-        });
+        gsap.to(el, { opacity: 0, duration: 0.2, onComplete: finishLoader });
         return;
       }
 
-      const boom = gsap.timeline({
+      const exit = gsap.timeline({
         defaults: { ease: "power3.inOut" },
         onComplete: finishLoader,
       });
 
-      boom
-        .to(brand, { scale: 1.05, duration: 0.26, ease: "power2.out" }, 0)
+      exit
+        .to(pctEl, { color: "rgb(196 162 110)", duration: 0.22, ease: "power2.out" }, 0)
+        .to(content, { opacity: 0, y: -24, duration: 0.4, ease: "power2.in" }, 0.1)
         .to(
-          pctEl,
-          { scale: 1.1, color: "rgb(var(--gold))", duration: 0.26, ease: "power2.out" },
-          0,
-        )
-        .fromTo(
-          flash,
-          { opacity: 0, scale: 0.6 },
-          { opacity: 0.8, scale: 1.12, duration: 0.2, ease: "power2.out" },
-          0.1,
-        )
-        .to(flash, { opacity: 0, duration: 0.4, ease: "power2.in" }, 0.28)
-        .to(
-          [brand, label, spin, pctEl, bar?.parentElement],
-          { opacity: 0, y: -20, filter: "blur(8px)", duration: 0.35, stagger: 0.03 },
-          0.25,
-        )
-        .to(
-          el,
+          panel,
           {
-            opacity: 0,
-            scale: 1.06,
-            filter: "blur(10px)",
-            duration: 0.6,
+            yPercent: -105,
+            duration: 0.72,
             ease: "power4.inOut",
           },
-          0.38,
-        );
+          0.24,
+        )
+        .set(el, { pointerEvents: "none" }, 0.24);
     }
 
     const progressTarget = progressProxy.current;
@@ -192,6 +221,7 @@ export default function Preloader() {
       window.removeEventListener("load", markLoadDone);
       window.clearTimeout(maxTimer);
       progressTween.kill();
+      ringTween?.kill();
       gsap.killTweensOf(progressTarget);
       unlockPageScroll();
     };
@@ -207,69 +237,92 @@ export default function Preloader() {
       aria-valuemax={100}
       aria-valuenow={percent}
       aria-label={`Loading portfolio ${percent} percent`}
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-background"
+      className="fixed inset-0 z-[200] overflow-hidden"
+      data-theme="dark"
+      style={{ colorScheme: "dark" }}
     >
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute left-1/2 top-[28%] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gold/[0.1] blur-[120px]" />
-        <div className="absolute bottom-[18%] left-[20%] h-[280px] w-[280px] rounded-full bg-primary/[0.07] blur-[100px]" />
-      </div>
-
       <div
-        ref={flashRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20 opacity-0"
+        ref={panelRef}
+        className="absolute inset-0 flex flex-col items-center justify-center will-change-transform"
         style={{
           background:
-            "radial-gradient(circle at 50% 45%, rgb(var(--gold) / 0.55), rgb(var(--primary) / 0.25) 40%, transparent 70%)",
+            "radial-gradient(ellipse 70% 55% at 50% 18%, rgba(180,52,62,0.18), transparent 55%), radial-gradient(ellipse 50% 40% at 80% 90%, rgba(196,162,110,0.1), transparent 50%), #08080A",
         }}
-      />
-
-      <div className="relative z-10 flex w-full max-w-md flex-col items-center px-6">
-        <div
-          ref={spinRef}
-          className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-gold/30 bg-gold/5"
-          aria-hidden="true"
-        >
-          <span className="h-10 w-10 rounded-full border-2 border-gold/55 border-t-transparent motion-safe:animate-spin" />
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(232,228,222,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(232,228,222,0.35) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
         </div>
 
-        <p
-          ref={brandRef}
-          className="text-center text-2xl font-semibold tracking-[0.04em] text-text sm:text-3xl"
+        <div
+          ref={contentRef}
+          className="relative z-10 flex w-full max-w-lg flex-col items-center px-6"
         >
-          {profile.fullName}
-        </p>
-        <p
-          ref={labelRef}
-          className="mt-2 text-center text-[10px] font-semibold uppercase tracking-[0.35em] text-gold"
-        >
-          Loading portfolio
-        </p>
-
-        <div className="mt-10 flex w-full max-w-[220px] flex-col items-center gap-3">
-          <div className="flex items-baseline gap-1 tabular-nums">
-            <span
-              ref={percentRef}
-              className="text-4xl font-bold tracking-tight text-text sm:text-5xl"
-            >
-              00
-            </span>
-            <span className="text-lg font-semibold text-gold">%</span>
-          </div>
-
           <div
-            className="h-[3px] w-full overflow-hidden rounded-full bg-gold/15"
+            ref={robotRef}
+            className="relative flex h-44 w-full max-w-sm items-center justify-center sm:h-52"
             aria-hidden="true"
           >
             <div
-              ref={barFillRef}
-              className="h-full w-0 rounded-full"
+              ref={ringRef}
+              className="absolute inset-[8%] rounded-full border border-[rgba(196,162,110,0.28)]"
               style={{
-                backgroundImage:
-                  "linear-gradient(90deg, rgb(var(--primary)), rgb(var(--gold)), rgb(var(--primary)))",
-                boxShadow: "0 0 16px rgb(var(--gold) / 0.45)",
+                borderTopColor: "rgba(180,52,62,0.75)",
+                borderRightColor: "rgba(196,162,110,0.45)",
               }}
             />
+            <div className="absolute inset-[18%] rounded-full border border-dashed border-[rgba(196,162,110,0.18)]" />
+            <div className="relative h-full w-full">
+              <PreloaderScene />
+            </div>
+          </div>
+
+          <p
+            ref={brandRef}
+            className="mt-2 text-center text-2xl font-semibold tracking-tight text-[#E8E4DE] sm:text-3xl"
+          >
+            {profile.fullName}
+          </p>
+
+          <p
+            ref={labelRef}
+            className="mt-2 text-center text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-[#C4A26E]"
+          >
+            System boot · Crimson Noir
+          </p>
+
+          <div className="mt-8 flex w-full max-w-xs flex-col items-center gap-3 sm:max-w-sm">
+            <div className="flex items-baseline gap-1 tabular-nums">
+              <span
+                ref={percentRef}
+                className="text-4xl font-bold tracking-tight text-[#E8E4DE] sm:text-5xl"
+              >
+                00
+              </span>
+              <span className="text-lg font-semibold text-[#C4A26E] sm:text-xl">%</span>
+            </div>
+
+            <div
+              ref={barTrackRef}
+              className="h-1 w-full overflow-hidden rounded-full bg-[rgba(196,162,110,0.15)] sm:h-1.5"
+              aria-hidden="true"
+            >
+              <div
+                ref={barFillRef}
+                className="h-full w-0 rounded-full"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, #B4343E, #C4A26E, #B4343E)",
+                  boxShadow: "0 0 14px rgba(196,162,110,0.35)",
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

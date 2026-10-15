@@ -8,9 +8,10 @@ const FOOTER_LINKS = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
   { id: "experience", label: "Experience" },
+  { id: "training", label: "Training" },
   { id: "projects", label: "Projects" },
   { id: "services", label: "Services" },
-  { id: "share", label: "Share & QR" },
+  { id: "share", label: "Resume QR" },
   { id: "contact", label: "Contact" },
 ];
 

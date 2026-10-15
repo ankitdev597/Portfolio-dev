@@ -1,31 +1,43 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "@/components/icons";
+import { ChevronLeft, ChevronRight } from "@/components/icons";
 
 interface CarouselProps {
   children: ReactNode[];
   autoPlay?: boolean;
   autoPlayInterval?: number;
   ariaLabel: string;
+  /** Hide prev/next — dots can still show via `showDots`. */
+  showControls?: boolean;
+  /** Progress dots under the track (default: true when controls on, or always for autoplay). */
+  showDots?: boolean;
+  /** Tailwind classes for each slide shell. */
+  slideClassName?: string;
+  className?: string;
 }
 
 /**
- * Native CSS scroll-snap carousel with accessible prev/next, slide status,
- * and optional autoplay that pauses on interaction and under reduced motion.
+ * Native CSS scroll-snap carousel with optional autoplay.
+ * Autoplay runs on its own; hover/touch only pauses temporarily.
  */
 export default function Carousel({
   children,
   autoPlay = false,
   autoPlayInterval = 5000,
   ariaLabel,
+  showControls = true,
+  showDots,
+  slideClassName = "w-[88%] shrink-0 snap-start sm:w-[70%] lg:w-[48%]",
+  className = "",
 }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const statusId = useId();
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
   const total = children.length;
+  const dotsVisible = showDots ?? (showControls || autoPlay);
 
   const syncIndex = useCallback(() => {
     const track = trackRef.current;
@@ -74,7 +86,7 @@ export default function Carousel({
   }, [syncIndex]);
 
   useEffect(() => {
-    if (!autoPlay || paused || reduceMotion || total < 2) return;
+    if (!autoPlay || hoverPaused || reduceMotion || total < 2) return;
 
     const interval = window.setInterval(() => {
       setIndex((current) => {
@@ -90,102 +102,95 @@ export default function Carousel({
     }, autoPlayInterval);
 
     return () => window.clearInterval(interval);
-  }, [autoPlay, autoPlayInterval, paused, reduceMotion, total]);
-
-  function pauseInteraction() {
-    setPaused(true);
-  }
+  }, [autoPlay, autoPlayInterval, hoverPaused, reduceMotion, total]);
 
   return (
-    <div className="relative">
-      <div
-        className="mb-3 flex flex-wrap items-center justify-between gap-3"
-        onMouseEnter={pauseInteraction}
-        onFocusCapture={pauseInteraction}
-      >
-        <p id={statusId} className="text-xs text-muted" aria-live="polite">
+    <div
+      className={`relative ${className}`}
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
+      onTouchStart={() => setHoverPaused(true)}
+      onTouchEnd={() => setHoverPaused(false)}
+    >
+      {(showControls || autoPlay) && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <p id={statusId} className="text-xs text-muted" aria-live="polite">
+            {index + 1} / {total}
+            {autoPlay && !reduceMotion ? (
+              <span className="ml-2 text-gold/80">{hoverPaused ? "Paused" : "Auto"}</span>
+            ) : null}
+          </p>
+
+          {showControls && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollToIndex(index - 1)}
+                className="icon-btn !h-10 !w-10 text-muted"
+                aria-label="Previous slide"
+                aria-controls={statusId}
+              >
+                <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToIndex(index + 1)}
+                className="icon-btn !h-10 !w-10 text-muted"
+                aria-label="Next slide"
+                aria-controls={statusId}
+              >
+                <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!showControls && !autoPlay && (
+        <p id={statusId} className="sr-only" aria-live="polite">
           Slide {index + 1} of {total}
         </p>
+      )}
 
-        <div className="flex items-center gap-2">
-          {autoPlay && !reduceMotion && (
-            <button
-              type="button"
-              onClick={() => setPaused((v) => !v)}
-              className="icon-btn !h-9 !w-9 text-muted"
-              aria-pressed={paused}
-              aria-label={paused ? "Resume autoplay" : "Pause autoplay"}
-            >
-              {paused ? (
-                <Play className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
-              ) : (
-                <Pause className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
-              )}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              pauseInteraction();
+      <div className="featured-carousel-mask">
+        <div
+          ref={trackRef}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label={ariaLabel}
+          aria-describedby={statusId}
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") {
+              e.preventDefault();
               scrollToIndex(index - 1);
-            }}
-            className="icon-btn !h-9 !w-9 text-muted"
-            aria-label="Previous slide"
-            aria-controls={statusId}
-          >
-            <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              pauseInteraction();
+            } else if (e.key === "ArrowRight") {
+              e.preventDefault();
               scrollToIndex(index + 1);
-            }}
-            className="icon-btn !h-9 !w-9 text-muted"
-            aria-label="Next slide"
-            aria-controls={statusId}
-          >
-            <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-          </button>
+            }
+          }}
+        >
+          {children.map((child, i) => (
+            <div
+              key={i}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${i + 1} of ${total}`}
+              className={`${slideClassName} flex`}
+            >
+              <div className="flex h-full w-full flex-col">{child}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div
-        ref={trackRef}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label={ariaLabel}
-        aria-describedby={statusId}
-        onTouchStart={pauseInteraction}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            pauseInteraction();
-            scrollToIndex(index - 1);
-          } else if (e.key === "ArrowRight") {
-            e.preventDefault();
-            pauseInteraction();
-            scrollToIndex(index + 1);
-          }
-        }}
-      >
-        {children.map((child, i) => (
-          <div
-            key={i}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${i + 1} of ${total}`}
-            className="w-[85%] shrink-0 snap-start sm:w-[60%] lg:w-[38%]"
-          >
-            {child}
-          </div>
-        ))}
-      </div>
-
-      {total > 1 && (
-        <div className="mt-1 flex justify-center gap-1.5" role="tablist" aria-label={`${ariaLabel} slides`}>
+      {dotsVisible && total > 1 && (
+        <div
+          className="mt-4 flex justify-center gap-1.5"
+          role="tablist"
+          aria-label={`${ariaLabel} slides`}
+        >
           {children.map((_, i) => (
             <button
               key={i}
@@ -193,12 +198,9 @@ export default function Carousel({
               role="tab"
               aria-selected={i === index}
               aria-label={`Go to slide ${i + 1}`}
-              onClick={() => {
-                pauseInteraction();
-                scrollToIndex(i);
-              }}
+              onClick={() => scrollToIndex(i)}
               className={`h-1.5 rounded-full transition-[width,background-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                i === index ? "w-5 bg-gold" : "w-1.5 bg-gold/25 hover:bg-gold/45"
+                i === index ? "w-6 bg-gold" : "w-1.5 bg-gold/25 hover:bg-gold/45"
               }`}
             />
           ))}

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  AdditiveBlending,
   Color,
   Group,
   InstancedBufferAttribute,
@@ -106,15 +105,14 @@ export default function HeroScene() {
       velocities.push(new Vector3(0, 0, 0));
     }
 
-    // Slightly tighter dots — reads cleaner / more executive than neon blobs
+    // Tighter dots ? executive, not neon. Dark mode stays muted (no harsh additive bloom).
     const dotRadius = 0.12 * lerp(0.3, 0.1, 1, 0.01, 0.1);
     const geometry = new SphereGeometry(dotRadius, 8, 8);
-    // Light mode: solid gold tones (additive washes out on ivory). Dark: soft additive glow.
     const material = new MeshBasicMaterial({
       color: 0xffffff,
-      blending: isLight ? NormalBlending : AdditiveBlending,
+      blending: NormalBlending,
       transparent: true,
-      opacity: isLight ? 0.92 : 0.72,
+      opacity: isLight ? 0.9 : 0.55,
       depthWrite: false,
     });
 
@@ -152,7 +150,8 @@ export default function HeroScene() {
     let pointer: { x: number; y: number } | null = null;
     let lastTime = performance.now();
 
-    const autoSpeed = lerp(0.8, 0.1, 1, 0.01, 0.05);
+    // Calm desktop spin ? yesterday pacing, not a disco orb
+    const autoSpeed = lerp(0.8, 0.1, 1, 0.01, 0.028);
     const follow = lerp(1, 0, 1, 0.4, 0.03);
     const damp = lerp(1, 0, 1, 0.7, 0.96);
     const repel = lerp(1, 0, 1, 0, 15);

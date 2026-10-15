@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 640 400" role="img" aria-label="Data · Processing representative preview">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="45%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="70%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#94a3b8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#g)"/>
+  <rect width="640" height="400" fill="url(#grid)"/>
+  <rect width="640" height="400" fill="url(#glow)"/>
+  <rect x="248" y="228" width="144" height="124" rx="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>
+  <rect x='285' y='248' width='70' height='90' rx='8' fill='none' stroke='#94a3b8' stroke-width='4'/><path d='M300 270h40M300 288h40M300 306h28' stroke='#94a3b8' stroke-width='3' stroke-linecap='round'/>
+  <text x="40" y="56" fill="rgba(255,255,255,0.55)" font-family="Georgia, 'Times New Roman', serif" font-size="13" letter-spacing="3">REPRESENTATIVE PREVIEW</text>
+  <text x="40" y="96" fill="#ffffff" font-family="Segoe UI, system-ui, sans-serif" font-size="28" font-weight="600">Data · Processing</text>
+  <text x="40" y="360" fill="rgba(255,255,255,0.45)" font-family="Segoe UI, system-ui, sans-serif" font-size="13">Not a live website screenshot</text>
+</svg>

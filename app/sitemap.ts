@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ankitvishwakarma.dev";
+import { SITE_URL } from "@/lib/site-url";
+
+const siteUrl = SITE_URL;
 
 /** Single-page portfolio — one canonical URL. */
 export default function sitemap(): MetadataRoute.Sitemap {
